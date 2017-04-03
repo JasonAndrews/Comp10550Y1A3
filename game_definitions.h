@@ -21,8 +21,8 @@
 
 #define 	EXIT_APPLICATION	'x' // the character required for the main menu loop to break
 
-#define 	MIN_NUM_OF_SLOTS	2
-#define 	MAX_NUM_OF_SLOTS	20
+#define 	MIN_BOARD_SIZE		2
+#define 	MAX_BOARD_SIZE		7
 
 #define 	MAX_PTS				100
 
@@ -65,11 +65,20 @@ struct PLAYER_CAPABILITIES {
 * information about each player
 */
 struct PLAYER {
-	char name[20]; // name of the player
-	enum PLAYER_TYPES playerType; // the player type
-	int life_pts; // life points 
-	struct PLAYER_CAPABILITIES caps; // the player's capabilities - see the PLAYER_CAPABILITIES struct above
-	int position; // the player's position in the slot array (zero based as it's an array)
+	
+	char 
+		name[20]; // name of the player
+	
+	enum 
+		PLAYER_TYPES playerType; // the player type
+		
+	int 
+		life_pts, // life points 
+		position, // the player's position in the slot array (zero based as it's an array)
+		alive; // the player's status - 0 if dead or if they exited, 1 if active and alive
+		
+	struct 
+		PLAYER_CAPABILITIES caps; // the player's capabilities - see the PLAYER_CAPABILITIES struct above
 };
 
 /*
@@ -77,11 +86,26 @@ struct PLAYER {
 * information about each slot
 */
 struct SLOT {
-	struct PLAYER *player;
-	enum SLOT_TYPES slotType;
+	
+	int 
+		row, // row number 
+		column; // column number
+	
+	struct SLOT 
+		*left, // adjacent left slot
+		*right, // adjacent right slot
+		*up, // adjacent above slot
+		*down; // adjacent below slot
+		
+	struct PLAYER 
+		*player;
+		
+	enum SLOT_TYPES 
+		slotType;
+	
 };
 
 
 
 
-#endif /* GAME_FUNCTIONS_H_*/
+#endif /* GAME_DEFS_H_*/

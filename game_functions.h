@@ -18,7 +18,7 @@
 #include "game_definitions.h"
 
 // function prototypes
-void setupSlots(unsigned int numPlayers, unsigned int numSlots, struct SLOT *gameSlots);
+void setupSlots(unsigned int numSlots, struct SLOT *gameSlots);
 char *getSlotString(enum SLOT_TYPES slotType);
 void setPlayerPositions(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers);
 void sortCap(struct PLAYER *gamePlayers, int i);
@@ -30,6 +30,7 @@ int attack(struct PLAYER gamePlayers[], struct PLAYER *player, unsigned int numP
 void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t nextSlotType);
 char *getPtypeString(enum PLAYER_TYPES playerType);
 
+void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, struct SLOT **downLeft, struct SLOT **downRight);
 
 
 
