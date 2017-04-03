@@ -8,6 +8,12 @@
  Description : 	This C file contains all implementation of the necessary functions for the game.
  ============================================================================
 */
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "game_functions.h"
 
 /* Function: 	setupSlots
  * Description:

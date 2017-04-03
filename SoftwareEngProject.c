@@ -25,7 +25,6 @@
 #include <stdbool.h>
 
 #include "game_functions.h"
-#include "game_functions.c"
 
 
 // main function

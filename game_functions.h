@@ -15,6 +15,7 @@
 #ifndef 	GAME_FUNCTIONS_H_
 #define 	GAME_FUNCTIONS_H_
 
+
 #define 	MAX_COLUMN_SIZE		100 // the max column size of each string in the 2D arrays
 
 #define 	EXIT_APPLICATION	'x' // the character required for the main menu loop to break
