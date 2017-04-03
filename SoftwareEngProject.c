@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "game_definitions.h"
 #include "game_functions.h"
 
 
