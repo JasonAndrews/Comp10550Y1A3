@@ -54,7 +54,7 @@ int main(void) {
 	
 	boardSize = numPlayers = 0;
 	
-	/*
+	
 	// keep looping until a valid number of players is entered
 	do {
 		
@@ -68,7 +68,7 @@ int main(void) {
 	} while (numPlayers < MIN_PLAYERS || numPlayers > MAX_PLAYERS);
 	// allocate the required amount of memory for a numPlayers sized array of type struct PLAYER
 	gamePlayers = (struct PLAYER * const) malloc(sizeof(struct PLAYER) * numPlayers);
-	*/
+	
 	// keep looping until a valid board size is entered
 	do {
 		// prompt for, and capture the board size for the game
@@ -85,18 +85,23 @@ int main(void) {
 	//gameSlots = (struct SLOT * const) malloc(sizeof(struct SLOT) * (boardSize * boardSize));
 	createBoard(boardSize, &upLeft, &upRight, &downLeft, &downRight);
 	
-	gameSlots = upLeft; // so gameSlots points to the first element of the array
+	// gameSlots points to the first element of the array (which is upLeft)
+	// i do this because I feel like gameSlots is a better name to represent the array of slots
+	gameSlots = upLeft; 
 	
-	printf("gameSlots = %p, upLeft = %p, upRight = %p, downLeft = %p, downRight = %p\n", gameSlots,upLeft,upRight,downLeft,upRight);
+	printf("\ngameSlots = %p, upLeft = %p, upRight = %p, downLeft = %p, downRight = %p\n", gameSlots,upLeft,upRight,downLeft,upRight);
+	
+	// set the slot type for each slot 
+	randSlotTypes(boardSize, gameSlots);
 	
 	// set up the players (getting their names, player type and capabilities)
-	//sortPlayers(gamePlayers, numPlayers);
+	sortPlayers(gamePlayers, numPlayers);
 	
 	// set up the slots
 	//setupSlots(boardSize, gameSlots);
 	
 	// randomly position players around the map (slots)	
-	//setPlayerPositions(boardSize, gameSlots, numPlayers, gamePlayers);
+	setPlayerPositions(boardSize, gameSlots, numPlayers, gamePlayers);
 
 	// start the game - Player1 -> PlayerN will have a turn
 	for (i = 0; i < numPlayers; i++) {		

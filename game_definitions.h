@@ -1,11 +1,11 @@
 /*
  ============================================================================
- Name        : game_definitions.h
+ Name        :	game_definitions.h
  Authors     : 
 				Jason Andrews
 				Jeremiah Wangaruro
 				
- Version     : 0.1
+ Version     : 	0.1
  Description : 	This header file contains all the necessary definitions  
 				for implementing the functionality of the game, such as enums
 				and define directives.
@@ -104,8 +104,5 @@ struct SLOT {
 		slotType;
 	
 };
-
-
-
 
 #endif /* GAME_DEFS_H_*/

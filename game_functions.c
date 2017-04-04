@@ -30,15 +30,17 @@ void randSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
 	size_t
 		i, // used in loops
 		j;
-		
+	
+	printf("\nStarting slot type assignment! [gameSlots = %p]\n", *gameSlots);
 	// assign a slot a random SLOT_TYPES
 	for (i = 0; i < boardSize; i++) {		
 		for (j = 0; j < boardSize; j++) {		
 			// assign a different slot type
-			gameSlots[i][j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;
-			gameSlots[i].player = NULL; // set the slot's player variable to NULL
-		}
-		
+			gameSlots[i*j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;
+			gameSlots[i*j].player = NULL; // set the slot's player variable to NULL
+			
+			printf("Slot[%d][%d] (%p) is of type %s\n", i, j, &gameSlots[i*j], getSlotString(gameSlots[i*j].slotType));
+		}		
 	}
 	
 } // end of setupSlots() function
@@ -737,7 +739,7 @@ void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, str
 
 	//The board is represented as a pointer of pointer to slots
 	//This allocates in memory the space for the pointers to each row of the board
-	struct SLOT ** board = malloc(boardSize * sizeof(struct slot *));
+	struct SLOT ** board = malloc(boardSize * sizeof(struct SLOT *));
 
 	for(int i =0; i< boardSize; i++){
 		//This allocates in memory the space for the slots in each row of the board
@@ -747,6 +749,7 @@ void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, str
 		for(int j=0;j < boardSize; j++){
 			board[i][j].row = i;
 			board[i][j].column = j;
+			printf("\n[%d][%d] created", i, j);
 		}
 	}
 
