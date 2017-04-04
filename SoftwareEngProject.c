@@ -92,7 +92,7 @@ int main(void) {
 	printf("\ngameSlots = %p, upLeft = %p, upRight = %p, downLeft = %p, downRight = %p\n", gameSlots,upLeft,upRight,downLeft,upRight);
 	
 	// set the slot type for each slot 
-	randSlotTypes(boardSize, gameSlots);
+	setSlotTypes(boardSize, gameSlots);
 	
 	// set up the players (getting their names, player type and capabilities)
 	sortPlayers(gamePlayers, numPlayers);

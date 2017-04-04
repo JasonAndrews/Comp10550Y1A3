@@ -15,7 +15,7 @@
 
 #include "game_functions.h"
 
-/* Function: 	randSlotTypes
+/* Function: 	setSlotTypes
  * Description:
  * 				Randomise the slot type for every slot.
  *	Parameters:
@@ -25,7 +25,7 @@
  *	Returns:
  *		gameSlots : pointer to struct SLOT - The array of slots (the memory of the first element of the array)
  */
-void randSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
+void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
 	
 	size_t
 		i, // used in loops

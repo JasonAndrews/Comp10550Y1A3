@@ -18,7 +18,7 @@
 #include "game_definitions.h"
 
 // function prototypes
-void randSlotTypes(unsigned int boardSize, struct SLOT *gameSlots);
+void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots);
 char *getSlotString(enum SLOT_TYPES slotType);
 void setPlayerPositions(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers);
 void sortCap(struct PLAYER *gamePlayers, int i);
