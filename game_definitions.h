@@ -74,8 +74,11 @@ struct PLAYER {
 		
 	int 
 		life_pts, // life points 
+		alive, // the player's status - 0 if dead or if they exited, 1 if active and alive
+		// this variable, position, will probably be removed
 		position, // the player's position in the slot array (zero based as it's an array)
-		alive; // the player's status - 0 if dead or if they exited, 1 if active and alive
+		row, // the row that the player is on within the board
+		column; // the column that the player is on within the board
 		
 	struct 
 		PLAYER_CAPABILITIES caps; // the player's capabilities - see the PLAYER_CAPABILITIES struct above
@@ -104,5 +107,6 @@ struct SLOT {
 		slotType;
 	
 };
+
 
 #endif /* GAME_DEFS_H_*/

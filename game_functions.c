@@ -39,7 +39,7 @@ void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
 			gameSlots[i*j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;
 			gameSlots[i*j].player = NULL; // set the slot's player variable to NULL
 			
-			printf("Slot[%d][%d] (%p) is of type %s\n", i, j, &gameSlots[i*j], getSlotString(gameSlots[i*j].slotType));
+			//printf("Slot[%d][%d] (%p) is of type %s\n", i, j, &gameSlots[i*j], getSlotString(gameSlots[i*j].slotType));
 		}		
 	}
 	
@@ -128,7 +128,7 @@ char* getPtypeString(enum PLAYER_TYPES playerType) {
  * Description:
  * 		Randomly positions players around the map (in random slots).
  *	Parameters:
- *		numSlots : uint - The number of slots in the game.
+ *		boardSize : uint - The number of slots in the game.
  * 		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 
  * 		numPlayers : uint - The number of players in the game.
  *      gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players. 
@@ -136,39 +136,34 @@ char* getPtypeString(enum PLAYER_TYPES playerType) {
  *	Returns:
  *		N/A
  */
-void setPlayerPositions(unsigned int numSlots, struct SLOT * gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers) {
+void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers) {
 
 	size_t 
-		randIndex, // random index 
-		i; // current player
-
-	bool 
-		placedPlayer = false; // whether the player was positioned or not
-	
+		randRow, // random row
+		randColumn, // random column
+		i, // stores the index of the current player being placed
+		row, // the row the player is positioned on
+		column; // the column the player is positioned on
 	
 	// loop numPlayers times (the number of players in the game)
 	for (i = 0; i < numPlayers; i++) {
 		
-		placedPlayer = false; // reset the variable for the current iteration
+		// get a random slot index
+		randRow = (rand() % boardSize);		
+		randColumn = (rand() % boardSize);		
+		//printf("\nrandIndex = %d", randRow * randColumn);
 		
-		// keep looping until the current player is placed in a slot
-		while (!placedPlayer) {
-			
-			// get a random slot index
-			randIndex = (rand() % numSlots);
-				
-			// if the slot has no player already, set the player in the slot
-			if (gameSlots[randIndex].player == NULL) {
-				// update the slots player variable to the address of the current player
-				gameSlots[randIndex].player = &gamePlayers[i];  
-				// update the boolean variable so the loop breaks				
-				placedPlayer = true; 
-				gamePlayers[i].position = randIndex;
-				
-				updateCapabilities(gameSlots, &gamePlayers[i], gamePlayers[i].position);
-				
-			} 
-		}		
+		// update the slots player variable to the address of the current player
+		gameSlots[randRow * randColumn].player = &gamePlayers[i];  
+		
+		// update the player's position member
+		gamePlayers[i].row = randRow; 
+		gamePlayers[i].column = randColumn; 
+		
+		updateCapabilities(gameSlots, &gamePlayers[i], gamePlayers[i].position);
+		
+		printf("\nPlayer %s was placed at Slots[%d][%d]", gamePlayers[i].name, randRow, randColumn);
+		
 	}
 } // end of setPlayerPositions() function
 
@@ -749,7 +744,7 @@ void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, str
 		for(int j=0;j < boardSize; j++){
 			board[i][j].row = i;
 			board[i][j].column = j;
-			printf("\n[%d][%d] created", i, j);
+			//printf("\n[%d][%d] created", i, j);
 		}
 	}
 
@@ -813,12 +808,12 @@ void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, str
 	board[0][boardSize-1].left = &board[0][boardSize-2];
 	board[0][boardSize -1].down = &board[1][boardSize -1];
 
-	//It sets up the adjacent slots for the slot at position (boarSize -1 ,0).
+	//It sets up the adjacent slots for the slot at position (boardSize -1 ,0).
 	//This only has only 2 adjacent slots: up and right
 	board[boardSize -1][0].right = &board[boardSize -1][1];
 	board[boardSize -1][0].up = &board[boardSize -2][0];
 
-	//It sets up the adjacent slots for the slot at position (boarSize -1 ,boardSize-1).
+	//It sets up the adjacent slots for the slot at position (boardSize -1 ,boardSize-1).
 	//This only has only 2 adjacent slots: up and left
 	board[boardSize - 1][boardSize-1].up = &board[boardSize-2][boardSize-1];
 	board[boardSize - 1][boardSize -1].left = &board[boardSize -1][boardSize -2];
