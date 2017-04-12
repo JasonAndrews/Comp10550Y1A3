@@ -102,6 +102,23 @@ int main(void) {
 	
 	// randomly position players around the map (slots)	
 	setPlayerPositions(boardSize, gameSlots, numPlayers, gamePlayers);
+	
+	// START OF TO-DO LIST
+	
+	// create a 2-d array of boolean values	
+	// currentPlayerSlot = reachDesiredElement(boardSize, currentSlot->row, currentSlot->column);	
+	// if the player wants to move, only them to go currentPlayerSlot->up, down, right, left.
+	/* 
+		if the player wants to attack:
+		
+		1. allow the player to decide what attack they want to do
+		2. call findSlots to retrieve the slots within the attack distance
+		3. check the array returned from the findSlots function for players on those slots
+		4. allow the player to decide what player they want to attack (if more than one)
+		5. attack the desired player
+		6. end that players turn		
+	*/	
+	// END OF TO-DO LIST
 
 	// start the game - Player1 -> PlayerN will have a turn
 	for (i = 0; i < numPlayers; i++) {		
