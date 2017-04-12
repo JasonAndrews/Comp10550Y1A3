@@ -150,10 +150,7 @@ void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigne
 		randRow = (rand() % boardSize);		
 		randColumn = (rand() % boardSize);		
 		//printf("\nrandIndex = %d", randRow * randColumn);
-		
-		// update the slots player variable to the address of the current player
-		gameSlots[randRow * randColumn].player = &gamePlayers[i];  
-		
+				
 		// update the player's position member
 		gamePlayers[i].row = randRow; 
 		gamePlayers[i].column = randColumn; 
@@ -456,6 +453,7 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 		if ((&gamePlayers[i]) == player)
 			continue;
 		
+		/*
 		// if the selected player's position MINUS the currently iterated player's position - update minDist
 		if (abs(player->position - gamePlayers[i].position) < minDist) {
 			// update the minDist
@@ -466,7 +464,7 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 					Index 2 - 4 = abs(-2) = 2
 					Index 4 - 2 = 2
 			*/
-		}
+		//}
 	}
 	
 	// loop through all the players to compute the number of players the attacker can attack
@@ -477,11 +475,11 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 			continue;
 				
 		// if the selected player's position MINUS the currently iterated player's position - update minDist
-		if (abs(player->position - gamePlayers[i].position) == minDist) {
+		/*if (abs(player->position - gamePlayers[i].position) == minDist) {
 			// place the player at minDist from the attacker in the array
 			closeByPlayers[numClosePlayers] = &gamePlayers[i];
 			numClosePlayers++; // increment
-		}		
+		}*/		
 	}
 	
 	attackedPlayer = 0; // set the default target as element 0 of closeByPlayers
@@ -556,15 +554,15 @@ int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player) {
 
 	for (i = 0; i < numSlots; i++) {
 		//printf("\ngameSlots[i].player = %p | player = %p", gameSlots[i].player, player);
-		if (gameSlots[i].player == player) {
+		/* FIX if (gameSlots[i].player == player) {
 			currentPosition = i;
 			break;
-		}
+		}*/
 	}
 	
 		
-	currentPosition = player->position;
-	printf("\n%s, your location is %d. Please select a direction.\n1. Forward.\n2. Backward\nYour choice: ", player->name, player->position);
+	// FIX currentPosition = player->position;
+	// FIX printf("\n%s, your location is %d. Please select a direction.\n1. Forward.\n2. Backward\nYour choice: ", player->name, player->position);
 	fflush(stdin); // flush the stdin buffer
 	scanf("%d", &moveChoice);
 
@@ -572,11 +570,12 @@ int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player) {
 		
 		case 1: {
 			// move forward
-			if (player->position == (numSlots - 1)) {
+			/* FIX if (player->position == (numSlots - 1)) {
 				printf("Sorry, you cannot move forward!\n\n");
 				break;
-			}
+			}*/
 			
+			/* FIX
 			// check if the next slot is empty
 			if (gameSlots[(currentPosition + 1)].player == NULL)  {
 				
@@ -593,19 +592,22 @@ int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player) {
 			} else {
 				// the slot has a player already
 				printf("\nYou cannot move to that position because another player is already there!\n");
-			}
+			}*/
 			
 			break;
 		}
 		case 2: {
 			// move backward
+			/* FIX
 			if (player->position == 0) {
 				printf("Sorry, you cannot move backwards!\n\n");
 				break;
 			}
+			*/
+			
 			
 			// check if the previous slot is empty
-			if (gameSlots[(currentPosition - 1)].player == NULL)  {
+			/* FIX if (gameSlots[(currentPosition - 1)].player == NULL)  {
 				
 				updateCapabilities(gameSlots, player, (player->position - 1));
 				
@@ -620,7 +622,7 @@ int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player) {
 			} else {
 				// the slot has a player already
 				printf("\nYou cannot move to that position because another player is already there!\n");
-			}
+			}*/
 			
 			break;
 		}
@@ -649,7 +651,7 @@ void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t ne
 			prevSlotType, // the SLOT_TYPES of the old slot
 			nextSlotType; // the SLOT_TYPES of the new slot
 	
-	prevSlotType = gameSlots[(player->position)].slotType;
+	// FIX prevSlotType = gameSlots[(player->position)].slotType;
 	nextSlotType = gameSlots[nextSlotIndex].slotType;
 		
 		
@@ -747,16 +749,16 @@ for (each player in player array) {
  * 	downLeft: pointer of pointer to slot at position (boardSsize -1, 0)
  * 	upLeft: pointer of pointer to slot at position (boardSize - 1, boardSize -1)
  */
-void createBoard(int boardSize, struct slot **upLeft, struct slot **upRight, struct slot **downLeft, struct slot **downRight){
+void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, struct SLOT **downLeft, struct SLOT **downRight){
 
-	//The board is represented as a pointer of pointer to slots
+	//The board is represented as a pointer of pointer to SLOTs
 	//This allocates in memory the space for the pointers to each row of the board
-	struct slot ** board = malloc(boardSize * sizeof(struct slot *));
+	struct SLOT ** board = malloc(boardSize * sizeof(struct SLOT *));
 
 
 	for(int i =0; i< boardSize; i++){
 		//This allocates in memory the space for the slots in each row of the board
-		board[i] = malloc(boardSize * sizeof(struct slot));
+		board[i] = malloc(boardSize * sizeof(struct SLOT));
 
 		//For each slot it sets up the row and column number
 		for(int j=0;j < boardSize; j++){
@@ -865,11 +867,11 @@ void createBoard(int boardSize, struct slot **upLeft, struct slot **upRight, str
  * 	column: the column in which the desired slot is located
  * 	initialSlot: the slot from which the slot search should start
  */
-struct slot * reachDesiredElement(int row, int column, struct slot * initialSlot){
+struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot){
 
 	bool found = false;
 	//current slot
-	struct slot * currentSlot = initialSlot;
+	struct SLOT * currentSlot = initialSlot;
 
 	printf("\nFunction reachDesiredElement invoked\n");
 
@@ -942,7 +944,7 @@ struct slot * reachDesiredElement(int row, int column, struct slot * initialSlot
  * 	count: pointer to an integer representing the number of slots that are found to be at a required distance from the starting slot
  * 	explored: matrix indicating for each slot at row x and column y has been traversed (true) or not (false)
  */
-void findSlots(int reqDist, int currDist,  struct slot * currSlot, struct slot * foundSlots, int * count,  bool explored[BOARD_SIZE][BOARD_SIZE]){
+void findSlots(int reqDist, int currDist,  struct SLOT * currSlot, struct SLOT * foundSlots, int * count,  bool explored[7][7]){
 
 
 

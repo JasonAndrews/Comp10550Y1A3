@@ -30,6 +30,8 @@ int attack(struct PLAYER gamePlayers[], struct PLAYER *player, unsigned int numP
 void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t nextSlotType);
 char *getPtypeString(enum PLAYER_TYPES playerType);
 
-void createBoard(int boardSize, struct slot **upLeft, struct slot **upRight, struct slot **downLeft, struct slot **downRight);
-struct slot *  reachDesiredElement(int row, int column, struct slot * initialSlot);
-void findSlots(int reqDist, int currDist,  struct slot * currSlot, struct slot * foundSlots, int * count,  bool explored[7][7]);
+void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, struct SLOT **downLeft, struct SLOT **downRight);
+struct SLOT *  reachDesiredElement(int row, int column, struct SLOT * initialSlot);
+void findSlots(int reqDist, int currDist,  struct SLOT * currSlot, struct SLOT * foundSlots, int * count,  bool explored[7][7]);
+
+#endif
