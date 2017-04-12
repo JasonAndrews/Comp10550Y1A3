@@ -155,6 +155,8 @@ void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigne
 		gamePlayers[i].row = randRow; 
 		gamePlayers[i].column = randColumn; 
 		
+		gamePlayers[i].alive = 1; // set the player to be alive
+		
 		updateCapabilities(gameSlots, &gamePlayers[i], gamePlayers[i].row * gamePlayers[i].column);
 		
 		printf("\nPlayer %s was placed at Slots[%d][%d]", gamePlayers[i].name, randRow, randColumn);
@@ -531,98 +533,93 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
  * 		Implements player movement. 
  * 		A player can move in either direction, unless, they are in the first slot (can only go forward) or the last slot (can only go backward)
  *	Parameters:
- *		numSlots : uint - The number of slots in the game.
+ *		boardSize : uint - The size of the board.
  * 		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 
  * 		player : struct PLAYER pointer - Pointer to the taking their player.
  *
  *	Returns:
  *		int - 1 if they completed their move, 0 if they didn't
  */
-int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player) {
+int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) {
 	
 	
 	size_t	
-		i,
-		currentPosition;
+		i;
 	
 	int
 		completedMove = 0;
 		
 	unsigned int 
-		moveChoice,
-		distToNextPlayer;
-
-	for (i = 0; i < numSlots; i++) {
-		//printf("\ngameSlots[i].player = %p | player = %p", gameSlots[i].player, player);
-		/* FIX if (gameSlots[i].player == player) {
-			currentPosition = i;
-			break;
-		}*/
-	}
+		moveChoice;
 	
-		
-	// FIX currentPosition = player->position;
-	// FIX printf("\n%s, your location is %d. Please select a direction.\n1. Forward.\n2. Backward\nYour choice: ", player->name, player->position);
+	printf("\n%s, your location is row %d, column %d. Please select a direction.\n1. Right.\n2. Left.\n3. Up.\n4. Down.\nYour choice: ", player->name, player->row, player->column);
 	fflush(stdin); // flush the stdin buffer
 	scanf("%d", &moveChoice);
 
 	switch (moveChoice) {
 		
 		case 1: {
-			// move forward
-			/* FIX if (player->position == (numSlots - 1)) {
-				printf("Sorry, you cannot move forward!\n\n");
+			// move right
+			if (player->column == (boardSize - 1)) {
+				printf("Sorry, you cannot move to the right!\n\n");
 				break;
-			}*/
+			}			
+				
+			updateCapabilities(gameSlots, player, (player->row * (player->column + 1)));
 			
-			/* FIX
-			// check if the next slot is empty
-			if (gameSlots[(currentPosition + 1)].player == NULL)  {
-				
-				updateCapabilities(gameSlots, player, (player->position + 1));
-				
-				player->position++;
-				printf("\n%s, you moved forward to location %d.", player->name, player->position);
-				
-				gameSlots[player->position].player = player;
-				gameSlots[currentPosition].player = NULL;
-				
-				completedMove = 1;
-				
-			} else {
-				// the slot has a player already
-				printf("\nYou cannot move to that position because another player is already there!\n");
-			}*/
+			player->column++;
+			printf("\n%s, you moved rightwards to location row %d, column %d.", player->name, player->row, player->column);
+			
+			completedMove = 1;		
 			
 			break;
 		}
+		
 		case 2: {
-			// move backward
-			/* FIX
-			if (player->position == 0) {
-				printf("Sorry, you cannot move backwards!\n\n");
+			// move left
+			if (player->column == 0) {
+				printf("Sorry, you cannot move to the left!\n\n");
 				break;
-			}
-			*/
+			}			
+				
+			updateCapabilities(gameSlots, player, (player->row * (player->column - 1)));
 			
+			player->column--;
+			printf("\n%s, you moved leftwards to location row %d, column %d.", player->name, player->row, player->column);
 			
-			// check if the previous slot is empty
-			/* FIX if (gameSlots[(currentPosition - 1)].player == NULL)  {
+			completedMove = 1;		
+			
+			break;
+		}
+		case 3: {
+			// move up
+			if (player->row == 0) {
+				printf("Sorry, you cannot move upwards!\n\n");
+				break;
+			}			
 				
-				updateCapabilities(gameSlots, player, (player->position - 1));
+			updateCapabilities(gameSlots, player, ((player->row - 1) * (player->column)));
+			
+			player->row--;
+			printf("\n%s, you moved upwards to location row %d, column %d.", player->name, player->row, player->column);
+			
+			completedMove = 1;		
+			
+			break;
+		}
+		case 4: {
+			// move down
+			if (player->row == (boardSize - 1)) {
+				printf("Sorry, you cannot move downwards!\n\n");
+				break;
+			}			
 				
-				player->position--;
-				printf("\n%s, you moved backwards to location %d.", player->name, player->position);
-				
-				gameSlots[player->position].player = player;
-				gameSlots[currentPosition].player = NULL;
-				
-				completedMove = 1;
-				//updateCapabilities();
-			} else {
-				// the slot has a player already
-				printf("\nYou cannot move to that position because another player is already there!\n");
-			}*/
+			updateCapabilities(gameSlots, player, ((player->row + 1) * (player->column)));
+			
+			player->row++;
+			printf("\n%s, you moved downwards to location row %d, column %d.", player->name, player->row, player->column);
+			
+			completedMove = 1;		
 			
 			break;
 		}
@@ -630,7 +627,6 @@ int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player) {
 	
 	return completedMove;
 } // end of move() function
-
 
 
 /* Function Name: updateCapabilities
@@ -651,7 +647,7 @@ void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t ne
 			prevSlotType, // the SLOT_TYPES of the old slot
 			nextSlotType; // the SLOT_TYPES of the new slot
 	
-	// FIX prevSlotType = gameSlots[(player->position)].slotType;
+	prevSlotType = gameSlots[(player->row) * (player->column)].slotType;
 	nextSlotType = gameSlots[nextSlotIndex].slotType;
 		
 		
@@ -739,6 +735,34 @@ for (each player in player array) {
 }
 // return player array (so the current player can attack the player they want)
 // END OF TO-DO LIST */
+
+
+/* Function Name: getTotalAlivePlayers
+ * Description:
+ * 		This function returns how many players are still alive (i.e. they didn't manually exit or die).
+ *	Parameters:
+ *		gameSlots : struct PLAYER pointer - Pointer to the start of the array of players.
+ *		numStartPlayers : uint - The number of players that started the game.
+ *	Returns:
+ *		numAlivePlayers : int - the number of players still alive
+ */
+int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *gameSlots) {
+	
+	size_t 
+		i;
+	int 
+		numAlivePlayers;
+	
+	numAlivePlayers = 0;
+	
+	for (i = 0; i < numStartPlayers; i++) {
+		if (gameSlots[i].alive == 1) 
+			numAlivePlayers++;
+	}
+	
+	return numAlivePlayers;
+}
+
 
 /*
  * This function creates the board

@@ -120,15 +120,28 @@ int main(void) {
 	*/	
 	// END OF TO-DO LIST
 
-	// start the game - Player1 -> PlayerN will have a turn
-	for (i = 0; i < numPlayers; i++) {		
-		//nextTurn(boardSize, gameSlots, numPlayers, gamePlayers, &gamePlayers[i]);
+	i = 0;
+	// while there are still more than 1 player alive, keep going
+	while (getTotalAlivePlayers(numPlayers, gamePlayers) > 1) {
+		
+		// reset the counter (A.K.A, a new round has started)
+		if (i >= numPlayers)
+			i = 0;
+		
+		// only players that are alive can have a turn
+		if (gamePlayers[i].alive) 
+			nextTurn(boardSize, gameSlots, numPlayers, gamePlayers, &gamePlayers[i]);
+		
+		i++;
 	}
 	
 	printf("\n\n** Game Over! **\nHere are the end-game stats for every player!");
 	//prints out <player name> (<player Type>, <life_pts>)
 	for(i = 0; i < numPlayers; i++)
 	{
+		// TO-DO
+		// check if alive == 1 and if hp > 0, then that player is the winner
+		// if alive == 0 and if hp > 0, then that player manually exited the game
 		printf("\n%s (%s, %d)", gamePlayers[i].name, getPtypeString(gamePlayers[i].playerType), gamePlayers[i].life_pts);
 	}
 	
