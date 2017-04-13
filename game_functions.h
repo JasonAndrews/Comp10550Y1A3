@@ -15,6 +15,8 @@
 #ifndef 	GAME_FUNCTIONS_H_
 #define 	GAME_FUNCTIONS_H_
 
+#include <stdbool.h>
+#include <stddef.h>
 #include "game_definitions.h"
 
 // function prototypes
@@ -26,7 +28,7 @@ void sortPlayers(struct PLAYER *gamePlayers, unsigned int numPlayers);
 int getCapabilitySum(struct PLAYER *player);
 void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player, struct SLOT *currSlot);
 int move(unsigned int numSlots, struct SLOT *gameSlots, struct PLAYER *player);
-int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPlayers, struct SLOT *currSlot);
+int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPlayers, struct SLOT *currSlot, unsigned int boardSize);
 void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t nextSlotType);
 char *getPtypeString(enum PLAYER_TYPES playerType);
 
