@@ -449,6 +449,12 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 	struct PLAYER
 		*enemy; // array of pointers to players you can attack
 		
+	foundSlots = malloc(boardSize * boardSize * sizeof(struct SLOT ));
+	enemy = malloc(sizeof(struct PLAYER) * numPlayers);
+	
+	
+	
+	
 	printf("\n%s, your location is row %d, column %d.Please enter \n1)for near attack \n2)for distant attack", player->name, player->row, player->column);
 	
 	if(((player->caps.smartness)+(player->caps.magicSkills)) > 150){
@@ -460,8 +466,12 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 		fflush(stdin); // flush the stdin buffer
 		scanf("%d", &choice);
 		
-		foundSlots = malloc(boardSize * boardSize * sizeof(struct SLOT ));
-		enemy = malloc(sizeof(struct PLAYER) * numPlayers);
+		//(re)set explored for iteration
+		for(i=0; i<boardSize; i++){
+			for(j=0; j<boardSize;j++){
+				explored[i][j] = false;
+			}
+		}
 		
 		switch(choice){
 			
@@ -487,6 +497,7 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 						printf("Choice: ");
 						scanf("%d", &attChoice);
 						
+						//the attChoice-1 is to get the right array index
 						if(enemy[attChoice-1].caps.strength <= 70){
 							enemy[attChoice-1].life_pts = enemy[attChoice-1].life_pts - (0.5 * player->caps.strength);
 							completeAttack = 1;
@@ -497,17 +508,60 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 						}
 					}
 					else{
-						printf("There is no near players.\nPlease choose a different type of attack");
+						printf("There is no nearby players.\nPlease choose a different type of attack");
 						completeAttack = 0;
 					}
 				break;	
 					
 			case 2 :
 					findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
-					/*
-						loop through foundSlot and remove any slots that has rows and columns equal to the adjacent slots
-					*/
-					completeAttack = 1;
+					
+					//loop through foundSlots and only slots that are not adjacent to the current player slot get to be compared to gamePlayers
+					for(i=0; i < count; i++){
+						if((foundSlots[i].row != currSlot->row) && (foundSlots[i].column != currSlot->column)) 
+							
+							if((foundSlots[i].row != currSlot->up->row) && (foundSlots[i].column != currSlot->up->column))
+								
+								if((foundSlots[i].row != currSlot->down->row) && (foundSlots[i].column != currSlot->down->column))
+									
+									if((foundSlots[i].row != currSlot->left->row) && (foundSlots[i].column != currSlot->left->column))
+										
+										if((foundSlots[i].row != currSlot->right->row) && (foundSlots[i].column != currSlot->right->column)){
+											
+											for(j=0; j < numPlayers; j++){
+												if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
+													
+													*(enemy + numEnemies)  = gamePlayers[j];
+													
+													numEnemies++;
+												}
+											}
+										}
+					}
+					
+					if(numEnemies > 0){
+						printf("\nYou can attack:");
+						for(i=0; i < numEnemies; i++){
+							printf("\n%d)%s Life points:%d",i+1, enemy->name, enemy->life_pts);
+						}
+						
+						printf("Choice: ");
+						fflush(stdin); // flush the stdin buffer
+						scanf("%d", &attChoice);
+						
+						if(player->caps.dexterity >= enemy[attChoice-1].caps.dexterity){
+							/*nothing happens (attaked player remain unchanged)*/
+						}
+						else if(player->caps.dexterity > enemy[attChoice-1].caps.dexterity){
+							enemy[attChoice-1].life_pts -= 0.3 * (player->caps.strength);
+						}
+						
+						completeAttack = 1;
+					}
+					else{
+						printf("There is no far away players.\nPlease choose a different type of attack");
+						completeAttack = 0;
+					}
 				break;
 				
 			case 3:
@@ -549,7 +603,8 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 				printf("\nINVALID CHOICE: Please enter a valid choice");
 				completeAttack = 0;
 				
-		}
+		}//end of switch
+		
 	}while(!completeAttack);
 	
 	return completeAttack;

@@ -87,6 +87,7 @@ int main(void) {
 	//gameSlots = (struct SLOT * const) malloc(sizeof(struct SLOT) * (boardSize * boardSize));
 	createBoard(boardSize, &upLeft, &upRight, &downLeft, &downRight);
 	
+	
 	// gameSlots points to the first element of the array (which is upLeft)
 	// i do this because I feel like gameSlots is a better name to represent the array of slots
 	gameSlots = upLeft; 
@@ -121,8 +122,8 @@ int main(void) {
 			/*If the the required slot is closer to the down-right
 			 * corner of the board the search starts from downRight,
 			 * which points to slot at position (boardSize-1, boarSize -1)*/
-			if(gamePlayers[i].row >= MAX_BOARD_SIZE/2){
-				if(gamePlayers[i].column >= MAX_BOARD_SIZE/2)
+			if(gamePlayers[i].row >= boardSize/2){
+				if(gamePlayers[i].column >= boardSize/2)
 					currSlot = reachDesiredElement(gamePlayers[i].row,gamePlayers[i].column,downRight);
 				else
 				/*If the the required slot is closer to the down-left
@@ -133,7 +134,7 @@ int main(void) {
 				/*If the the required slot is closer to the up-right
 				* corner of the board the search starts from upRight,
 				* which points to slot at position (0, boarSize -1)*/
-				if(gamePlayers[i].column >= MAX_BOARD_SIZE/2)
+				if(gamePlayers[i].column >= boardSize/2)
 					currSlot = reachDesiredElement(gamePlayers[i].row,gamePlayers[i].column, upRight);
 				/*If the the required slot is closer to the up-left
 				* corner of the board the search starts from upLeft,
