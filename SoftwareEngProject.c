@@ -42,6 +42,8 @@ int main(void) {
 	struct PLAYER 
 			*gamePlayers; // an array of struct PLAYER 
 			
+	struct SLOT* currSlot = NULL; // a pointer to current player location
+	
 	struct SLOT
 			*upLeft, // a pointer to the top left corner struct SLOT object on the board. Slot (0, 0).
 			*upRight, // a pointer to the top left corner struct SLOT object on the board. Slot (0, boardSize - 1).
@@ -103,22 +105,6 @@ int main(void) {
 	// randomly position players around the map (slots)	
 	setPlayerPositions(boardSize, gameSlots, numPlayers, gamePlayers);
 	
-	// START OF TO-DO LIST
-	
-	// create a 2-d array of boolean values	
-	// currentPlayerSlot = reachDesiredElement(boardSize, currentSlot->row, currentSlot->column);	
-	// if the player wants to move, only them to go currentPlayerSlot->up, down, right, left.
-	/* 
-		if the player wants to attack:
-		
-		1. allow the player to decide what attack they want to do
-		2. call findSlots to retrieve the slots within the attack distance
-		3. check the array returned from the findSlots function for players on those slots
-		4. allow the player to decide what player they want to attack (if more than one)
-		5. attack the desired player
-		6. end that players turn		
-	*/	
-	// END OF TO-DO LIST
 
 	i = 0;
 	// while there are still more than 1 player alive, keep going
@@ -129,8 +115,36 @@ int main(void) {
 			i = 0;
 		
 		// only players that are alive can have a turn
-		if (gamePlayers[i].alive) 
-			nextTurn(boardSize, gameSlots, numPlayers, gamePlayers, &gamePlayers[i]);
+		if (gamePlayers[i].alive){
+			
+			//Finds the slot
+			/*If the the required slot is closer to the down-right
+			 * corner of the board the search starts from downRight,
+			 * which points to slot at position (boardSize-1, boarSize -1)*/
+			if(gamePlayers[i].row >= MAX_BOARD_SIZE/2){
+				if(gamePlayers[i].column >= MAX_BOARD_SIZE/2)
+					currSlot = reachDesiredElement(gamePlayers[i].row,gamePlayers[i].column,downRight);
+				else
+				/*If the the required slot is closer to the down-left
+				* corner of the board the search starts from downLeft,
+				* which points to slot at position (boardSize-1, 0)*/
+					currSlot = reachDesiredElement(gamePlayers[i].row,gamePlayers[i].column,downLeft);
+			} else {
+				/*If the the required slot is closer to the up-right
+				* corner of the board the search starts from upRight,
+				* which points to slot at position (0, boarSize -1)*/
+				if(gamePlayers[i].column >= MAX_BOARD_SIZE/2)
+					currSlot = reachDesiredElement(gamePlayers[i].row,gamePlayers[i].column, upRight);
+				/*If the the required slot is closer to the up-left
+				* corner of the board the search starts from upLeft,
+				* which points to slot at position (0, 0)*/
+				else currSlot = reachDesiredElement(gamePlayers[i].row,gamePlayers[i].column,upLeft);
+			}
+
+			nextTurn(boardSize, gameSlots, numPlayers, gamePlayers, &gamePlayers[i], currSlot);
+		}
+			
+			
 		
 		i++;
 	}

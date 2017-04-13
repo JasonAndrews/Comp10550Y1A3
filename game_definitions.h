@@ -31,6 +31,9 @@
 
 #define 	TOTAL_SLOT_TYPES	3
 
+#define		NEAR_ATTACK			1
+#define		DISTANT_ATTACK		5
+
 
 // values are assigned by default from ranging from 0 to 3 (Elf=0, Human=1, etc.)
 enum PLAYER_TYPES {

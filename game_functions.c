@@ -381,7 +381,7 @@ int getCapabilitySum(struct PLAYER *player) {
  *	Returns:
  *		N/A
  */
-void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player) {
+void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player, struct SLOT *currSlot) {
 		
 	unsigned int 
 		turnChoice; // user input for the menu
@@ -400,7 +400,7 @@ void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPla
 		switch (turnChoice) {		
 			case 1: {
 				// the player wants to attack
-				completedTurn = attack(gamePlayers, player, numPlayers);
+				completedTurn = attack(gamePlayers, player, numPlayers, currSlot);
 				break;
 			}
 			case 2: {	
@@ -416,114 +416,134 @@ void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPla
 
 /* Function Name: attack
  * Description:
- * 		Attacks a target for a player. 
+ * 		Finds players to attack depending on specified attack and attacks the player of choice 
  *	Parameters:
  *		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players. 
  *		player : struct PLAYER pointer - Pointer to the attacking player.
+ *		currSlot : a pointer to the current slot that is traversed.
  * 		numPlayers : uint - The number of players in the game.
  *
  *	Returns:
  *		int - Returns 1 if they completed their move and 0 if they didn't.
  */
-int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPlayers)
-{
-	int 
-		completedTurn; // the returned value
-		
-	size_t 
-		i; // used in loops
+int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPlayers, struct SLOT *currSlot) {
 	
-	unsigned int 
-			minDist = (20) /*MAX_SLOTS*/,
-			numClosePlayers = 0, // the number of players at the same minDist to the player
-			attackedPlayer = 0, // index of the attacked player in the closeByPlayers array
-			choice; // user input
-			
-	struct PLAYER 
-			** closeByPlayers; // array of pointers to pointers of struct PLAYER
+	int
+		completeAttack = 0;
+		choice,
+		attChoice, // player to attack
+		count = 0, // number of slots found
+		numEnemies = 0; //number of attackable players
 		
-	bool	
-		validChoice = false; // if the user input is valid
+		
+		
+	size_t  // used in loops
+		i,
+		j;
+		
+	struct SLOT
+		*foundSlots;
 	
-	// allocate the required amount of memory for an array of size 2 of type pointer to pointer of struct PLAYER
-	closeByPlayers = (struct PLAYER * * const) malloc(sizeof(struct PLAYER) * 2);
+	struct PLAYER
+		*enemy; // array of pointers to players you can attack
+		
+	printf("\n%s, your location is row %d, column %d.Please enter \n1)for near attack \n2)for distant attack", player->name, player->row, player->column);
 	
-	// loop through all the players to compute the minimum distance
-	for (i = 0; i < numPlayers; i++) {
-		
-		// skip the iteration for the player attacking
-		if ((&gamePlayers[i]) == player)
-			continue;
-		
-		/*
-		// if the selected player's position MINUS the currently iterated player's position - update minDist
-		if (abs(player->position - gamePlayers[i].position) < minDist) {
-			// update the minDist
-			minDist = abs(player->position - gamePlayers[i].position);
-			/*
-				The abs(olute) function is used to get an unsigned integer value for the distance
-				Example:
-					Index 2 - 4 = abs(-2) = 2
-					Index 4 - 2 = 2
-			*/
-		//}
+	if((player->caps.smartness)+(player->caps.magicSkills) > 150){
+		printf("\n3)for magic attack");
 	}
 	
-	// loop through all the players to compute the number of players the attacker can attack
-	for (i = 0; i < numPlayers; i++) {
+	do{
+		printf("\nChoice: ");
+		fflush(stdin); // flush the stdin buffer
+		scanf("%d", &choice);
 		
-		// skip the iteration for the player attacking
-		if ((&gamePlayers[i]) == player) 
-			continue;
+		foundSlots = malloc(MAX_BOARD_SIZE * MAX_BOARD_SIZE * sizeof(struct slot ));
+		
+		switch(choice){
+			
+			case 1 :
+					findSlots(NEAR_ATTACK, 0, currSlot, foundSlots,&count, explored);
+					
+					for(i=0; i < count; i++){
+						for(j=0; j < numPlayers; j++){
+							if((gamePlayers[j].row == foundSlot[i].row) && (gamePlayers[j]column == foundSlot[i].column)){
+								
+								*(enemy + numEnemies)  = &gamePlayers[j];
+								numEnemies++;
+							}
+						}
+					}
+					
+					printf("\nYou can attack:");
+					for(i=0; i < numEnemies; i++){
+						printf("\n%d)%s Life points:%d",i+1 enemy->name, enemy->life_pts);
+					}
+					
+					printf("Choice: ");
+					scanf("%d", &attChoice);
+					
+					if(enemy[attChoice-1].caps.strength <= 70){
+						enemy[attChoice-1].life_pts = enemy[attChoice-1].life_pts - (0.5 * player->caps.strength);
+						completeAttack = 1;
+					}
+					else if(enemy[attChoice-1].caps.strength > 70){
+						player->life_pts = player->life_pts - (0.3 * enemy[attChoice-1].caps.strength);
+						completeAttack = 1;
+					}
+				break;	
+					
+			case 2 :
+					findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
+					/*
+						loop through foundSlot and remove any slots that has rows and columns equal to the adjacent slots
+					*/
+					completeAttack = 1;
+				break;
 				
-		// if the selected player's position MINUS the currently iterated player's position - update minDist
-		/*if (abs(player->position - gamePlayers[i].position) == minDist) {
-			// place the player at minDist from the attacker in the array
-			closeByPlayers[numClosePlayers] = &gamePlayers[i];
-			numClosePlayers++; // increment
-		}*/		
-	}
-	
-	attackedPlayer = 0; // set the default target as element 0 of closeByPlayers
-	
-	// implement the actual attacking of the players
-	if (numClosePlayers == 2) {
-		// the attacking player has 2 close targets to attack
-		
-		do {
+			case 3:
+					
+					if((player->caps.smartness)+(player->caps.magicSkills) > 150){
+						printf("\nSorry you are not eligible for this attack.\nYou need the total sum of your smartness and magic skills points to be greater than 150");
+						completeAttack = 0;
+					}else{
 			
-			printf("\nYou are between two players.\nWho do you want to attack?\n1. %s.\n2. %s.\nAttack: ", closeByPlayers[0]->name, closeByPlayers[1]->name);
-			fflush(stdin); // flush the stdin buffer
-			scanf("%d", &choice);			
+						findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
+						
+						for(i=0; i < count; i++){
+							for(j=0; j < numPlayers; j++){
+								if((gamePlayers[j].row == foundSlot[i].row) && (gamePlayers[j]column == foundSlot[i].column)){
+									
+									*(enemy + numEnemies)  = &gamePlayers[j];
+									numEnemies++;
+								}
+							}
+						}
+					
+						
+						printf("\nYou can attack:");
+						for(i=0; i < numEnemies; i++){
+							printf("\n%d)%s Life points:%d",i+1 enemy->name, enemy->life_pts);
+						}
+						
+						printf("Choice: ");
+						fflush(stdin); // flush the stdin buffer
+						scanf("%d", &attChoice);
+						
+						enemy[attChoice].life_pts -= ((0.5 * player->caps.magicSkills)+(0.2 * player->caps.smartness));
 			
-			if(choice == 1)
-			{
-				attackedPlayer = 0; // index of player to be attacked in the closeByPlayers array
-				validChoice = true;
-			}
-			else if(choice == 2)
-			{
-				attackedPlayer = 1;
-				validChoice = true;
-			}
-			
-		} while (!validChoice);
-		
-	}
-
-	// attack the target player 
-	if((closeByPlayers[attackedPlayer]->caps.strength) <= 70)
-	{
-		// damage the target
-		closeByPlayers[attackedPlayer]->life_pts -= (0.5*(closeByPlayers[attackedPlayer]->caps.strength));
-		printf("\n%s attacked %s and damaged them!\n", player->name, closeByPlayers[attackedPlayer]->name);
-	} else {
-		// damage the attacker
-		player->life_pts -= (0.3 * (player->caps.strength));
-		printf("\n%s attacked %s but wasn't strong enough and got hurt!\n", player->name, closeByPlayers[attackedPlayer]->name);
-	}	 
+						completeAttack = 1;
+					}
+				break;
+				
+			default:
+				printf("\nINVALID CHOICE: Please enter a valid choice");
+				completeAttack = 0;
+				
+		}
+	}while(!completeAttack);
 	
-	return 1;
+	return completeAttack;
 	
 }// end of attack() function.
 
