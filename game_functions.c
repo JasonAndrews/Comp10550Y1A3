@@ -432,8 +432,8 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 		completeAttack = 0,
 		choice,
 		attChoice, // player to attack
-		count = 0, // number of slots found
-		numEnemies = 0; //number of attackable players
+		count, // number of slots found
+		numEnemies; //number of attackable players
 	
 	bool 
 		explored[boardSize][boardSize]; //2-D boolean array used for mapping foundSlot in findSlot()
@@ -472,6 +472,10 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 				explored[i][j] = false;
 			}
 		}
+		
+		//(re)set counters
+		count =0;
+		numEnemies=0;
 		
 		switch(choice){
 			
