@@ -1,12 +1,12 @@
 /*
  ============================================================================
  Name        :	game_definitions.h
- Authors     : 
+ Authors     :
 				Jason Andrews
 				Jeremiah Wangaruro
-				
+
  Version     : 	0.1
- Description : 	This header file contains all the necessary definitions  
+ Description : 	This header file contains all the necessary definitions
 				for implementing the functionality of the game, such as enums
 				and define directives.
  ============================================================================
@@ -24,15 +24,6 @@
 #define 	MIN_BOARD_SIZE		2
 #define 	MAX_BOARD_SIZE		7
 
-#define 	MAX_PTS				100
-
-#define 	MIN_PLAYERS			2
-#define 	MAX_PLAYERS			6
-
-#define 	TOTAL_SLOT_TYPES	3
-
-#define		NEAR_ATTACK			1
-#define		DISTANT_ATTACK		5
 
 
 // values are assigned by default from ranging from 0 to 3 (Elf=0, Human=1, etc.)
@@ -47,15 +38,15 @@ enum PLAYER_TYPES {
 enum SLOT_TYPES {
 	LEVEL_GROUND = 1,
 	HILL = 2,
-	CITY = 3	
+	CITY = 3
 };
 
 /*
-* This struct will be used to store	
+* This struct will be used to store
 * information about each player's capabilities
 */
 struct PLAYER_CAPABILITIES {
-	int 
+	int
 		smartness,
 		strength,
 		magicSkills,
@@ -64,46 +55,46 @@ struct PLAYER_CAPABILITIES {
 };
 
 /*
-* This struct will be used to store	
+* This struct will be used to store
 * information about each player
 */
 struct PLAYER {
-	
-	char 
+
+	char
 		name[20]; // name of the player
-	
-	enum 
+
+	enum
 		PLAYER_TYPES playerType; // the player type
-		
-	int 
-		life_pts, // life points 
+
+	int
+		life_pts, // life points
 		alive, // the player's status - 0 if dead or if they exited, 1 if active and alive
 		row, // the row that the player is on within the board
 		column; // the column that the player is on within the board
-		
-	struct 
+
+	struct
 		PLAYER_CAPABILITIES caps; // the player's capabilities - see the PLAYER_CAPABILITIES struct above
 };
 
 /*
-* This struct will be used to store	
+* This struct will be used to store
 * information about each slot
 */
 struct SLOT {
-	
-	int 
-		row, // row number 
+
+	int
+		row, // row number
 		column; // column number
-	
-	struct SLOT 
+
+	struct SLOT
 		*left, // adjacent left slot
 		*right, // adjacent right slot
 		*up, // adjacent above slot
 		*down; // adjacent below slot
-		
-	enum SLOT_TYPES 
+
+	enum SLOT_TYPES
 		slotType;
-	
+
 };
 
 

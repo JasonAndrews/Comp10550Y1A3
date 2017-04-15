@@ -1,12 +1,12 @@
 /*
  ============================================================================
  Name        : game_functions.h
- Authors     : 
+ Authors     :
 				Jason Andrews
 				Jeremiah Wangaruro
-				
+
  Version     : 0.1
- Description : 	This header file contains all the necessary function prototypes 
+ Description : 	This header file contains all the necessary function prototypes
 				for implementing the functionality of the game.
  ============================================================================
 */
@@ -18,6 +18,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "game_definitions.h"
+
+#define 	MAX_PTS				100
+
+#define 	MIN_PLAYERS			2
+#define 	MAX_PLAYERS			6
+
+#define 	TOTAL_SLOT_TYPES	3
+
+#define		NEAR_ATTACK			1
+#define		DISTANT_ATTACK		5
+
 
 // function prototypes
 void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots);

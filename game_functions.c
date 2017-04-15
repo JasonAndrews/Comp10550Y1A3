@@ -1,10 +1,10 @@
 /*
  ============================================================================
  Name        : game_functions.c
- Authors     : 
+ Authors     :
 				Jason Andrews
 				Jeremiah Wangaruro
-				
+
  Description : 	This C file contains all implementation of the necessary functions for the game.
  ============================================================================
 */
@@ -20,27 +20,27 @@
  * 				Randomise the slot type for every slot.
  *	Parameters:
  *		boardSize : uint - The size of the array.
- *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 
+ *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots.
  *
  *	Returns:
  *		gameSlots : pointer to struct SLOT - The array of slots (the memory of the first element of the array)
  */
 void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
-	
+
 	size_t
 		i, // used in loops
 		j;
-	
+
 	//printf("\nStarting slot type assignment! [gameSlots = %p]\n", *gameSlots);
 	// assign a slot a random SLOT_TYPES
-	for (i = 0; i < boardSize; i++) {		
-		for (j = 0; j < boardSize; j++) {		
+	for (i = 0; i < boardSize; i++) {
+		for (j = 0; j < boardSize; j++) {
 			// assign a different slot type
-			gameSlots[i*j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;			
+			gameSlots[i*j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;
 			//printf("Slot[%d][%d] (%p) is of type %s\n", i, j, &gameSlots[i*j], getSlotString(gameSlots[i*j].slotType));
-		}		
+		}
 	}
-	
+
 } // end of setupSlots() function
 
 
@@ -55,9 +55,9 @@ void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
  *		slotString : string pointer - The string representation.
  */
 char* getSlotString(enum SLOT_TYPES slotType) {
-	
+
 	char *slotString = "";
-	
+
 	switch (slotType) {
 		case LEVEL_GROUND: {
 			slotString = "Level Ground";
@@ -76,7 +76,7 @@ char* getSlotString(enum SLOT_TYPES slotType) {
 			break;
 		}
 	}
-	return slotString;	
+	return slotString;
 } // end of getSlotString() function
 
 
@@ -91,9 +91,9 @@ char* getSlotString(enum SLOT_TYPES slotType) {
  *		typeString : string pointer - The string representation.
  */
 char* getPtypeString(enum PLAYER_TYPES playerType) {
-	
+
 	char *typeString = "";
-	
+
 	switch (playerType) {
 		case ELF: {
 			typeString = "Elf";
@@ -116,64 +116,64 @@ char* getPtypeString(enum PLAYER_TYPES playerType) {
 			break;
 		}
 	}
-	
-	return typeString;	
+
+	return typeString;
 } // end of getPtypeString() function
 
 
-/* Function Name: 	
+/* Function Name:
  * 		setPlayerPositions
  * Description:
  * 		Randomly positions players around the map (in random slots).
  *	Parameters:
  *		boardSize : uint - The number of slots in the game.
- * 		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 
+ * 		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots.
  * 		numPlayers : uint - The number of players in the game.
- *      gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players. 
+ *      gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players.
  *
  *	Returns:
  *		N/A
  */
 void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers) {
 
-	size_t 
+	size_t
 		randRow, // random row
 		randColumn, // random column
 		i, // stores the index of the current player being placed
 		row, // the row the player is positioned on
 		column; // the column the player is positioned on
-	
+
 	// loop numPlayers times (the number of players in the game)
 	for (i = 0; i < numPlayers; i++) {
-		
+
 		// get a random slot index
-		randRow = (rand() % boardSize);		
-		randColumn = (rand() % boardSize);		
+		randRow = (rand() % boardSize);
+		randColumn = (rand() % boardSize);
 		//printf("\nrandIndex = %d", randRow * randColumn);
-				
+
 		// update the player's position member
-		gamePlayers[i].row = randRow; 
-		gamePlayers[i].column = randColumn; 
-		
+		gamePlayers[i].row = randRow;
+		gamePlayers[i].column = randColumn;
+
 		gamePlayers[i].alive = 1; // set the player to be alive
-		
+
 		updateCapabilities(gameSlots, &gamePlayers[i], gamePlayers[i].row * gamePlayers[i].column);
-		
+
 		printf("\nPlayer %s was placed at Slots[%d][%d]", gamePlayers[i].name, randRow, randColumn);
-		
+
 	}
 } // end of setPlayerPositions() function
 
 
 
- 
 
-/* Function Name: 
+
+/* Function Name:
  * 		sortPlayers
  * Description:
- * 		Set up the array of players. 
+ * 		Set up the array of players.
  *	Parameters:
- * 		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players. 
+ * 		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players.
  * 		numPlayers : uint - The number of players in the game.
  *
  *	Returns:
@@ -181,32 +181,32 @@ void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigne
  */
 void sortPlayers(struct PLAYER *gamePlayers, unsigned int numPlayers)
 {
-	size_t 
+	size_t
 		curPlayer, // the current player being set up (in the gamePlayers array)
 		i; // used to iterate through the player's name
-		
-	unsigned int 
+
+	unsigned int
 			type; // the class type the player chooses
-	
-	
+
+
 
 	// loop numPlayers times and ask for the player's name and type
-	for (curPlayer = 0; curPlayer < numPlayers; curPlayer++) 
+	for (curPlayer = 0; curPlayer < numPlayers; curPlayer++)
 	{
-		
+
 		printf("\nPlayer %d, please enter your name (20 characers max.)\n-> ", (curPlayer + 1));
 		fflush(stdin); // flush the stdin buffer
 		fflush(stdout); // flush the stdout buffer
 		fgets(gamePlayers[curPlayer].name, 20, stdin); // get a line of input from the user
-		
+
 		// remove the NEWLINE character from the player's name.
-		for (i = 0; gamePlayers[curPlayer].name[i] != '\0'; i++) { 				
+		for (i = 0; gamePlayers[curPlayer].name[i] != '\0'; i++) {
 			if (gamePlayers[curPlayer].name[i] == '\n') {
 				gamePlayers[curPlayer].name[i] = '\0'; // set the current character as the EOS character
 				break;
 			}
-		}			
-		
+		}
+
 		// loop until the player enters a correct player type
 		do {
 			printf("\n%s, please select your type:\n", gamePlayers[curPlayer].name);
@@ -216,14 +216,14 @@ void sortPlayers(struct PLAYER *gamePlayers, unsigned int numPlayers)
 			printf("4. Wizard.\n");
 			printf("Your choice: ");
 			fflush(stdin);
-			scanf("%d", &type);	
-			
+			scanf("%d", &type);
+
 			if (!(type >= 1 && type <= 4))
 				printf("\nERROR INVALID ENTRY: \nPlease enter a number between 1 and 4!\n");
-			
+
 		} while (!(type >= 1 && type <= 4));
-		
-		
+
+
 		switch(type)
 		{
 			case 1:
@@ -244,22 +244,22 @@ void sortPlayers(struct PLAYER *gamePlayers, unsigned int numPlayers)
 
 			default:
 				printf("\nERROR INVALID ENTRY: Please enter a number between 1 and 4!\n");
-		}			
-		
-		gamePlayers[curPlayer].life_pts = MAX_PTS;				
-		
+		}
+
+		gamePlayers[curPlayer].life_pts = MAX_PTS;
+
 		// set up the capabilities for the ith player
-		sortCap(gamePlayers, curPlayer);			
+		sortCap(gamePlayers, curPlayer);
 
 	}
-	
+
 } // end of sortPlayers() function
 
 
-/* Function Name: 
+/* Function Name:
  * 		sortCap
  * Description:
- * 		Assigns values to the player capabilities. 
+ * 		Assigns values to the player capabilities.
  *	Parameters:
  * 		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players.
  *		i : integer - The index of the player in the array being set up
@@ -269,55 +269,55 @@ void sortPlayers(struct PLAYER *gamePlayers, unsigned int numPlayers)
  */
 void sortCap(struct PLAYER *gamePlayers, int i)
 {
-	bool 
+	bool
 		valid; // whether the player's capabilities is vald
-	time_t 
+	time_t
 		currentTime;
-			
+
 	switch (gamePlayers[i].playerType) {
-		
+
 		case HUMAN: {
-			
+
 			// keep randomising all capabilities until the sum is less than 300
 			do {
-			
+
 				gamePlayers[i].caps.smartness = 1 + (rand() % 100);
 				gamePlayers[i].caps.luck = 1 + (rand() % 100);
 				gamePlayers[i].caps.strength = 1 + (rand() % 100);
 				gamePlayers[i].caps.magicSkills = 1 + (rand() % 100);
 				gamePlayers[i].caps.dexterity= 1 + (rand() % 100);
-				
+
 				// check if the requirements for the human player type was met
 				if(getCapabilitySum(&gamePlayers[i]) < 300)
 					valid = true;
-				else 
+				else
 					valid = false;
-				
+
 			} while (!valid);
-			
+
 			break;
 		}
 		case OGRE: {
-			
+
 			gamePlayers[i].caps.magicSkills = 0;
 			gamePlayers[i].caps.strength = 80+rand()%21;
 			gamePlayers[i].caps.dexterity = 80+rand()%21;
-			
+
 			// keep randomising smartness and luck until the sum is less than 50
 			do
 			{
-				
+
 				gamePlayers[i].caps.smartness = rand()%21;
 				gamePlayers[i].caps.luck = rand()%51;
-				
+
 				// check if the requirements for the ogre player type was met
 				if((gamePlayers[i].caps.smartness + gamePlayers[i].caps.luck) < 50)
 					valid = true;
 				else
 					valid = false;
-				
-			} while (!valid);	
-			
+
+			} while (!valid);
+
 			break;
 		}
 		case ELF: {
@@ -335,28 +335,28 @@ void sortCap(struct PLAYER *gamePlayers, int i)
 			gamePlayers[i].caps.magicSkills = 80+rand()%21;
 			gamePlayers[i].caps.dexterity = 1+rand()%99;
 			break;
-		}	
+		}
 	} // end switch
-	
+
 }// end of sortCap() function
 
 
 
-/* Function Name: 
+/* Function Name:
  * 		getCapabilitySum
  * Description:
  * 		Returns the sum of the player's capabilities.
  *	Parameters:
- * 		player : struct PLAYER pointer - Pointer to the player. 
+ * 		player : struct PLAYER pointer - Pointer to the player.
  *
  *	Returns:
  *		N/A
  */
 int getCapabilitySum(struct PLAYER *player) {
-	
-	int 
+
+	int
 		capSum = 0;
-	
+
 	capSum += player->caps.smartness;
 	capSum += player->caps.strength;
 	capSum += player->caps.magicSkills;
@@ -364,61 +364,61 @@ int getCapabilitySum(struct PLAYER *player) {
 	capSum += player->caps.dexterity;
 
 	return capSum;
-	
+
 } // end of getCapabilitySum() function
 
-/* Function Name: 
+/* Function Name:
  * 		nextTurn
  * Description:
  * 		Lets a player take their turn - either to move or attack.
  *	Parameters:
  *		numSlots : uint - The number of slots in the game.
- *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 
+ *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots.
  * 		numPlayers : uint - The number of players in the game.
- * 		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players. 
+ * 		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players.
  *		player : struct PLAYER pointer - Pointer to the player taking their turn.
  *
  *	Returns:
  *		N/A
  */
 void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player, struct SLOT *currSlot) {
-		
-	unsigned int 
+
+	unsigned int
 		turnChoice; // user input for the menu
-	int 
+	int
 		completedTurn = 0; // ensures every player takes their turn
-			
+
 	do {
-		
+
 		do {
 			printf("\n%s, it is your turn.\nWhat do you want to do?\n1. Attack.\n2. Move.\nYour choice: ", player->name);
 			fflush(stdin); // flush the stdin buffer
 			scanf("%d", &turnChoice);
-	
+
 		} while (turnChoice < 1 || turnChoice > 2);
-		
-		switch (turnChoice) {		
+
+		switch (turnChoice) {
 			case 1: {
 				// the player wants to attack
 				completedTurn = attack(gamePlayers, player, numPlayers, currSlot, numSlots);
 				break;
 			}
-			case 2: {	
+			case 2: {
 				// the player wants to move
 				completedTurn = move(numSlots, gameSlots, player);
 				break;
 			}
 		}
 	} while (!completedTurn);
-	
+
 } // end of nextTurn() function
 
 
 /* Function Name: attack
  * Description:
- * 		Finds players to attack depending on specified attack and attacks the player of choice 
+ * 		Finds players to attack depending on specified attack and attacks the player of choice
  *	Parameters:
- *		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players. 
+ *		gamePlayers : struct PLAYER pointer - Pointer to the start of the array of players.
  *		player : struct PLAYER pointer - Pointer to the attacking player.
  *		currSlot : a pointer to the current slot that is traversed.
  * 		numPlayers : uint - The number of players in the game.
@@ -427,80 +427,80 @@ void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPla
  *		int - Returns 1 if they completed their move and 0 if they didn't.
  */
 int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPlayers, struct SLOT *currSlot, unsigned int boardSize) {
-	
+
 	int
 		completeAttack = 0,
 		choice,
 		attChoice, // player to attack
 		count, // number of slots found
 		numEnemies; //number of attackable players
-	
-	bool 
+
+	bool
 		explored[boardSize][boardSize]; //2-D boolean array used for mapping foundSlot in findSlot()
-		
-		
+
+
 	size_t  // used in loops
 		i,
 		j;
-		
+
 	struct SLOT
 		*foundSlots;
-	
+
 	struct PLAYER
 		**enemy; // array of pointers to pointers of struct PLAYER (enemy -> gamePlayers -> players);
-		
+
 	foundSlots = malloc(boardSize * boardSize * sizeof(struct SLOT ));
-	enemy = (struct PLAYER **)malloc(sizeof(struct PLAYER) * numPlayers);
-	
-	
-	
-	
+	enemy = (struct PLAYER * * const)malloc(sizeof(struct PLAYER) * numPlayers);
+
+
+
+
 	printf("\n%s, your location is row %d, column %d.Please enter \n1)for near attack \n2)for distant attack", player->name, player->row, player->column);
-	
+
 	if(((player->caps.smartness)+(player->caps.magicSkills)) > 150){
 		printf("\n3)for magic attack");
 	}
-	
+
 	do{
 		printf("\nChoice: ");
 		fflush(stdin); // flush the stdin buffer
 		scanf("%d", &choice);
-		
+
 		//(re)set explored for iteration
 		for(i=0; i<boardSize; i++){
 			for(j=0; j<boardSize;j++){
 				explored[i][j] = false;
 			}
 		}
-		
+
 		//(re)set counters
 		count =0;
 		numEnemies=0;
-		
+
 		switch(choice){
-			
+
 			case 1 :
 					findSlots(NEAR_ATTACK, 0, currSlot, foundSlots, &count, explored);
-					
+
 					for(i=0; i < count; i++){
 						for(j=0; j < numPlayers; j++){
 							if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
-								
+
 								enemy[numEnemies]  = &gamePlayers[j];
 								numEnemies++;
 							}
 						}
 					}
-					
+
 					if(numEnemies > 0){
 						printf("\nYou can attack:");
 						for(i=0; i < numEnemies; i++){
 							printf("\n%d)%s Life points:%d",i+1, enemy[i]->name, enemy[i]->life_pts);
 						}
-						
+
 						printf("Choice: ");
 						scanf("%d", &attChoice);
-						
+
 						//the attChoice-1 is to get the right array index
 						if(enemy[attChoice-1]->caps.strength <= 70){
 							enemy[attChoice-1]->life_pts = enemy[attChoice-1]->life_pts - (0.5 * player->caps.strength);
@@ -515,50 +515,50 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 						printf("There is no nearby players.\nPlease choose a different type of attack");
 						completeAttack = 0;
 					}
-				break;	
-					
+				break;
+
 			case 2 :
 					findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
-					
+
 					//loop through foundSlots and only slots that are not adjacent to the current player slot get to be compared to gamePlayers
 					for(i=0; i < count; i++){
-						if((foundSlots[i].row != currSlot->row) && (foundSlots[i].column != currSlot->column)) 
-							
+						if((foundSlots[i].row != currSlot->row) && (foundSlots[i].column != currSlot->column))
+
 							if((foundSlots[i].row != currSlot->up->row) && (foundSlots[i].column != currSlot->up->column))
-								
+
 								if((foundSlots[i].row != currSlot->down->row) && (foundSlots[i].column != currSlot->down->column))
-									
+
 									if((foundSlots[i].row != currSlot->left->row) && (foundSlots[i].column != currSlot->left->column))
-										
+
 										if((foundSlots[i].row != currSlot->right->row) && (foundSlots[i].column != currSlot->right->column)){
-											
+
 											for(j=0; j < numPlayers; j++){
 												if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
-													
+
 													enemy[numEnemies]  = &gamePlayers[j];
 													numEnemies++;
 												}
 											}
 										}
 					}
-					
+
 					if(numEnemies > 0){
 						printf("\nYou can attack:");
 						for(i=0; i < numEnemies; i++){
 							printf("\n%d)%s Life points:%d",i+1, enemy[i]->name, enemy[i]->life_pts);
 						}
-						
+
 						printf("Choice: ");
 						fflush(stdin); // flush the stdin buffer
 						scanf("%d", &attChoice);
-						
+
 						if(player->caps.dexterity >= enemy[attChoice-1]->caps.dexterity){
 							/*nothing happens (attaked player remain unchanged)*/
 						}
 						else if(player->caps.dexterity > enemy[attChoice-1]->caps.dexterity){
 							enemy[attChoice-1]->life_pts -= 0.3 * (player->caps.strength);
 						}
-						
+
 						completeAttack = 1;
 					}
 					else{
@@ -566,119 +566,119 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 						completeAttack = 0;
 					}
 				break;
-				
+
 			case 3:
-					
+
 					if((player->caps.smartness)+(player->caps.magicSkills) > 150){
 						printf("\nSorry you are not eligible for this attack.\nYou need the total sum of your smartness and magic skills points to be greater than 150");
 						completeAttack = 0;
 					}else{
-			
+
 						findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
-						
+
 						for(i=0; i < count; i++){
 							for(j=0; j < numPlayers; j++){
 								if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
-									
+
 									enemy[numEnemies]  = &gamePlayers[j];
 									numEnemies++;
 								}
 							}
 						}
-					
-						
+
+
 						printf("\nYou can attack:");
 						for(i=0; i < numEnemies; i++){
 							printf("\n%d)%s Life points:%d",i+1, enemy[i]->name, enemy[i]->life_pts);
 						}
-						
+
 						printf("Choice: ");
 						fflush(stdin); // flush the stdin buffer
 						scanf("%d", &attChoice);
-						
+
 						enemy[attChoice]->life_pts -= ((0.5 * player->caps.magicSkills)+(0.2 * player->caps.smartness));
-			
+
 						completeAttack = 1;
 					}
 				break;
-				
+
 			default:
 				printf("\nINVALID CHOICE: Please enter a valid choice");
 				completeAttack = 0;
-				
+
 		}//end of switch
-		
+
 	}while(!completeAttack);
-	
+
 	free(enemy);
 	free(foundSlots);
-	
+
 	return completeAttack;
-	
+
 }// end of attack() function.
 
 
 /* Function Name: move
  * Description:
- * 		Implements player movement. 
+ * 		Implements player movement.
  * 		A player can move in either direction, unless, they are in the first slot (can only go forward) or the last slot (can only go backward)
  *	Parameters:
  *		boardSize : uint - The size of the board.
- * 		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 
+ * 		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots.
  * 		player : struct PLAYER pointer - Pointer to the taking their player.
  *
  *	Returns:
  *		int - 1 if they completed their move, 0 if they didn't
  */
 int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) {
-	
-	
-	size_t	
+
+
+	size_t
 		i;
-	
+
 	int
 		completedMove = 0;
-		
-	unsigned int 
+
+	unsigned int
 		moveChoice;
-	
+
 	printf("\n%s, your location is row %d, column %d. Please select a direction.\n1. Right.\n2. Left.\n3. Up.\n4. Down.\nYour choice: ", player->name, player->row, player->column);
 	fflush(stdin); // flush the stdin buffer
 	scanf("%d", &moveChoice);
 
 	switch (moveChoice) {
-		
+
 		case 1: {
 			// move right
 			if (player->column == (boardSize - 1)) {
 				printf("Sorry, you cannot move to the right!\n\n");
 				break;
-			}			
-				
+			}
+
 			updateCapabilities(gameSlots, player, (player->row * (player->column + 1)));
-			
+
 			player->column++;
 			printf("\n%s, you moved rightwards to location row %d, column %d.", player->name, player->row, player->column);
-			
-			completedMove = 1;		
-			
+
+			completedMove = 1;
+
 			break;
 		}
-		
+
 		case 2: {
 			// move left
 			if (player->column == 0) {
 				printf("Sorry, you cannot move to the left!\n\n");
 				break;
-			}			
-				
+			}
+
 			updateCapabilities(gameSlots, player, (player->row * (player->column - 1)));
-			
+
 			player->column--;
 			printf("\n%s, you moved leftwards to location row %d, column %d.", player->name, player->row, player->column);
-			
-			completedMove = 1;		
-			
+
+			completedMove = 1;
+
 			break;
 		}
 		case 3: {
@@ -686,15 +686,15 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
 			if (player->row == 0) {
 				printf("Sorry, you cannot move upwards!\n\n");
 				break;
-			}			
-				
+			}
+
 			updateCapabilities(gameSlots, player, ((player->row - 1) * (player->column)));
-			
+
 			player->row--;
 			printf("\n%s, you moved upwards to location row %d, column %d.", player->name, player->row, player->column);
-			
-			completedMove = 1;		
-			
+
+			completedMove = 1;
+
 			break;
 		}
 		case 4: {
@@ -702,19 +702,19 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
 			if (player->row == (boardSize - 1)) {
 				printf("Sorry, you cannot move downwards!\n\n");
 				break;
-			}			
-				
+			}
+
 			updateCapabilities(gameSlots, player, ((player->row + 1) * (player->column)));
-			
+
 			player->row++;
 			printf("\n%s, you moved downwards to location row %d, column %d.", player->name, player->row, player->column);
-			
-			completedMove = 1;		
-			
+
+			completedMove = 1;
+
 			break;
 		}
 	}
-	
+
 	return completedMove;
 } // end of move() function
 
@@ -725,86 +725,86 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
  * 		Leaving a slot that removes capabilities will restore the stats lost.
  * 		Entering a slot that will remove capabilities will do so.
  *	Parameters:
- *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots. 	
+ *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots.
  * 		player : struct PLAYER pointer - Pointer to the taking their player.
  *		nextSlotIndex : size_t	- The index of the slot the player will be in next.
  *	Returns:
  *		N/A
  */
 void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t nextSlotIndex) {
-	
-	enum SLOT_TYPES 
+
+	enum SLOT_TYPES
 			prevSlotType, // the SLOT_TYPES of the old slot
 			nextSlotType; // the SLOT_TYPES of the new slot
-	
+
 	prevSlotType = gameSlots[(player->row) * (player->column)].slotType;
 	nextSlotType = gameSlots[nextSlotIndex].slotType;
-		
-		
+
+
 	// update the players capabilities only if they are not going to the same slot type
 	if (nextSlotType != prevSlotType) {
-		
+
 		// depending on the next slot type the player will enter, update their capabilities to their previous state
 		switch (prevSlotType) {
 			case HILL: {
-				
-				if (player->caps.dexterity < 50) 
+
+				if (player->caps.dexterity < 50)
 					player->caps.strength += 10;
 				else if (player->caps.dexterity >= 60)
 					player->caps.strength -= 10;
-				
+
 				break;
 			}
 			case CITY: {
-				
-				if (player->caps.smartness > 60)					
+
+				if (player->caps.smartness > 60)
 					player->caps.magicSkills -= 10;
 				else if (player->caps.smartness <= 50)
 					player->caps.dexterity += 10;
-				
+
 				break;
 			}
 		}
-		
+
 		// depending on the next slot type the player will enter, update their capabilities
 		switch (nextSlotType) {
 			case HILL: {
-				
+
 				if (player->caps.dexterity < 50)  {
 					player->caps.strength -= 10;
-					
+
 					if (player->caps.strength < 0)
 						player->caps.strength = 0;
-					
+
 				} else if (player->caps.dexterity >= 60) {
 					player->caps.strength += 10;
 
 					if (player->caps.strength > 100)
 						player->caps.strength = 100;
-				
+
 				}
 				break;
 			}
 			case CITY: {
-				
-				if (player->caps.smartness > 60) {		
+
+				if (player->caps.smartness > 60) {
 					player->caps.magicSkills += 10;
-					
+
 					if (player->caps.magicSkills > 100)
 						player->caps.magicSkills = 100;
-					
+
 				} else if (player->caps.smartness <= 50) {
 					player->caps.dexterity -= 10;
-					
+
 					if (player->caps.dexterity < 0)
 						player->caps.magicSkills = 0;
 				}
 				break;
 			}
-		}		
+		}
 	}
 
-	
+
 } // end of updateCapabilities() function
 
 
@@ -815,13 +815,13 @@ void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t ne
 // CHECK IF PLAYER IS ALIVE
 // if alive, compare the players row and column to the slots row and column
 for (each player in player array) {
-	
+
 	// check if the player is alive
 	// if yes, enter loop
-	for (each slot in slot array) {		
+	for (each slot in slot array) {
 		// check if player->row, player->column ===== slot->row, slot->column
-		// if they match, then add this PLAYER to a player array		
-	}	
+		// if they match, then add this PLAYER to a player array
+	}
 }
 // return player array (so the current player can attack the player they want)
 // END OF TO-DO LIST */
@@ -837,19 +837,19 @@ for (each player in player array) {
  *		numAlivePlayers : int - the number of players still alive
  */
 int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *gameSlots) {
-	
-	size_t 
+
+	size_t
 		i;
-	int 
+	int
 		numAlivePlayers;
-	
+
 	numAlivePlayers = 0;
-	
+
 	for (i = 0; i < numStartPlayers; i++) {
-		if (gameSlots[i].alive == 1) 
+		if (gameSlots[i].alive == 1)
 			numAlivePlayers++;
 	}
-	
+
 	return numAlivePlayers;
 }
 
