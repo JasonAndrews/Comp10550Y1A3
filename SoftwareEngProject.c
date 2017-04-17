@@ -122,8 +122,8 @@ int main(void) {
 		if (i >= numPlayers)
 			i = 0;
 
-		// only players that are alive can have a turn
-		if (gamePlayers[i].alive){
+		// only players that are alive and have not quit can have a turn 
+		if ((gamePlayers[i].alive) && !(gamePlayers[i].quit)){
 			
 			//Finds the slot
 			/*If the the required slot is closer to the down-right
