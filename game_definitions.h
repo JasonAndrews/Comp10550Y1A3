@@ -24,6 +24,8 @@
 #define 	MIN_BOARD_SIZE		2
 #define 	MAX_BOARD_SIZE		7
 
+#define		NEAR_ATTACK			1
+#define		DISTANT_ATTACK		5
 
 
 // values are assigned by default from ranging from 0 to 3 (Elf=0, Human=1, etc.)
