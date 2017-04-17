@@ -7,13 +7,13 @@
 				Jason Andrews
 				Jeremiah Wangaruro
 
- Description : 	This file contains the code necessary for Assignment Two.
-				Assignment two tasks us with developing the early stages of the game.
+ Description : 	This file contains the code necessary for Assignment Three.
+				Assignment two tasks us with developing the later stages of the game.
 				This includes:
-					Setting up the necessary structs.
-					Setting up the necessary enums.
-					Populating the structs.
-					Implementing some auto character creation.
+					Updating the structs.
+					Updating the move functionality.
+					Updating the attack functionality.
+					Adding / Updating other areas of the code, such as adding in a board (of 7 x 7 slots).
  ============================================================================
  */
 
@@ -49,13 +49,12 @@ int main(void) {
 			*upRight, // a pointer to the top left corner struct SLOT object on the board. Slot (0, boardSize - 1).
 			*downLeft, // a pointer to the top left corner struct SLOT object on the board. Slot (boardSize - 1, 0).
 			*downRight, // a pointer to the top left corner struct SLOT object on the board. Slot (boardSize - 1, boardSize - 1).
-			**gameSlots; // a pointer to a struct SLOT object (the first one in the array)
+			**gameSlots; // a pointer of pointer to SLOTs
 
 	// set the current time as the seed for the rand() function
 	srand(time(NULL));
 
 	boardSize = numPlayers = 0;
-
 
 	// keep looping until a valid number of players is entered
 	do {
@@ -90,21 +89,7 @@ int main(void) {
 	// This allocates in memory the space for the pointers to each row of the board
 	gameSlots = malloc(boardSize * (sizeof(struct SLOT *)));
 	createBoard(boardSize, gameSlots, &upLeft, &upRight, &downLeft, &downRight);
-		
-	// gameSlots points to the first element of the array (which is upLeft)
-	// i do this because I feel like gameSlots is a better name to represent the array of slots
-	//gameSlots = &upLeft;
-	
-	//printf("\ngameSlots = %p, upLeft = %p, upRight = %p, downLeft = %p, downRight = %p\n", *gameSlots,upLeft,upRight,downLeft,upRight);
-	//printf("\n\nGameSlots[0][0] = %p\n\n", &gameSlots[0][0]);
-	int index = 0;
-	for (int x = 0; x < boardSize; x++) {
-		for (int z = 0; z < boardSize; z++) {
-			//printf("\n\t(%d, %d)", gameSlots[x][z].row, gameSlots[x][z].column);
-		}
-	}
-	//printf("\n\n END ");
-	
+					
 	// set the slot type for each slot
 	setSlotTypes(boardSize, gameSlots);
 	
