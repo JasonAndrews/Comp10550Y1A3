@@ -922,8 +922,11 @@ int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *players) {
 
 	numAlivePlayers = 0;
 
+	
 	for (i = 0; i < numStartPlayers; i++) {
-		if ((players[i].alive == 1) && (players[i].quit == 0) && (players[i].life_pts >= 0))
+		if(players[i].life_pts <= 0)
+			player[i].alive = 0;
+		if ((players[i].alive == 1) && (players[i].quit == 0))
 			numAlivePlayers++;
 	}
 
