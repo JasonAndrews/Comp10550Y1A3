@@ -145,7 +145,7 @@ int main(void) {
 	//prints out <player name> (<player Type>, <life_pts>) or "quit the game"
 	for(i = 0; i < numPlayers; i++)
 	{
-		if(gamePlayers[i].life_pts <= 0){
+		if(gamePlayers[i].alive == 0){
 			printf("\n%s died",gamePlayers[i].name);
 			
 		}else if(gamePlayers[i].quit == 1){
