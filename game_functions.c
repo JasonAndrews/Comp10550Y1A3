@@ -20,12 +20,12 @@
  * 				Randomise the slot type for every slot.
  *	Parameters:
  *		boardSize : uint - The size of the array.
- *		gameSlots : struct SLOT pointer - Pointer to the start of the array of slots.
+ *		gameSlots : struct SLOT ** - Pointer of pointers for board.
  *
  *	Returns:
  *		gameSlots : pointer to struct SLOT - The array of slots (the memory of the first element of the array)
  */
-void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
+void setSlotTypes(unsigned int boardSize, struct SLOT **gameSlots) {
 
 	size_t
 		i, // used in loops
@@ -36,7 +36,7 @@ void setSlotTypes(unsigned int boardSize, struct SLOT *gameSlots) {
 	for (i = 0; i < boardSize; i++) {
 		for (j = 0; j < boardSize; j++) {
 			// assign a different slot type
-			gameSlots[i*j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;
+			gameSlots[i][j].slotType = (rand() % TOTAL_SLOT_TYPES) + 1;
 			//printf("Slot[%d][%d] (%p) is of type %s\n", i, j, &gameSlots[i*j], getSlotString(gameSlots[i*j].slotType));
 		}
 	}
@@ -134,7 +134,7 @@ char* getPtypeString(enum PLAYER_TYPES playerType) {
  *	Returns:
  *		N/A
  */
-void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers) {
+void setPlayerPositions(unsigned int boardSize, struct SLOT **gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers) {
 
 	size_t
 		randRow, // random row
@@ -157,7 +157,7 @@ void setPlayerPositions(unsigned int boardSize, struct SLOT * gameSlots, unsigne
 
 		gamePlayers[i].alive = 1; // set the player to be alive
 
-		updateCapabilities(gameSlots, &gamePlayers[i], gamePlayers[i].row * gamePlayers[i].column);
+		updateCapabilities(gameSlots, &gamePlayers[i], gamePlayers[i].row, gamePlayers[i].column);
 
 		printf("\nPlayer %s was placed at Slots[%d][%d]", gamePlayers[i].name, randRow, randColumn);
 
@@ -381,7 +381,7 @@ int getCapabilitySum(struct PLAYER *player) {
  *	Returns:
  *		N/A
  */
-void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player, struct SLOT *currSlot) {
+void nextTurn(unsigned int numSlots, struct SLOT **gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player, struct SLOT *currSlot) {
 
 	unsigned int
 		turnChoice; // user input for the menu
@@ -400,7 +400,9 @@ void nextTurn(unsigned int numSlots, struct SLOT *gameSlots, unsigned int numPla
 		switch (turnChoice) {
 			case 1: {
 				// the player wants to attack
+				printf("\nStarting Attack Move For %s (%d, %d)", player->name, currSlot->row, currSlot->column);
 				completedTurn = attack(gamePlayers, player, numPlayers, currSlot, numSlots);
+				
 				break;
 			}
 			case 2: {
@@ -449,16 +451,16 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 	struct PLAYER
 		**enemy; // array of pointers to pointers of struct PLAYER (enemy -> gamePlayers -> players);
 
-	foundSlots = malloc(boardSize * boardSize * sizeof(struct SLOT ));
+	foundSlots = malloc(boardSize * boardSize * sizeof(struct SLOT));
 	enemy = (struct PLAYER * * const)malloc(sizeof(struct PLAYER) * numPlayers);
 
 
 
 
-	printf("\n%s, your location is row %d, column %d.Please enter \n1)for near attack \n2)for distant attack", player->name, player->row, player->column);
+	printf("\n%s, your location is row %d, column %d.\nPlease enter \n1. for a near attack.\n2. for a distant attack.", player->name, player->row, player->column);
 
 	if(((player->caps.smartness)+(player->caps.magicSkills)) > 150){
-		printf("\n3)for magic attack");
+		printf("\n3. for a magic attack.");
 	}
 
 	do{
@@ -480,27 +482,39 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 		switch(choice){
 
 			case 1 :
+								
 					findSlots(NEAR_ATTACK, 0, currSlot, foundSlots, &count, explored);
-
-					for(i=0; i < count; i++){
-						for(j=0; j < numPlayers; j++){
-							if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
-
-								enemy[numEnemies]  = &gamePlayers[j];
-								numEnemies++;
+					
+					//loop through foundSlots and only slots that are not adjacent to the current player slot get to be compared to gamePlayers
+					for (i = 0; i < numPlayers; i++) {
+						
+						if (gamePlayers[i].alive) {
+							
+							for (j = 0; j < count; j++) {
+								
+								// check if the current player is on the current slot
+								if (gamePlayers[i].row == foundSlots[j].row && gamePlayers[i].column == foundSlots[j].column) {
+								
+									// add the attackable player to the enemy array
+									enemy[numEnemies]  = &gamePlayers[i];
+									// increment numEnemies
+									numEnemies++;
+								}
 							}
 						}
+						
 					}
 
+					
 					if(numEnemies > 0){
 						printf("\nYou can attack:");
 						for(i=0; i < numEnemies; i++){
-							printf("\n%d)%s Life points:%d",i+1, enemy[i]->name, enemy[i]->life_pts);
+							printf("\n%d. %s (%d HP)",i+1, enemy[i]->name, enemy[i]->life_pts);
 						}
 
 						printf("Choice: ");
 						scanf("%d", &attChoice);
-
+						
 						//the attChoice-1 is to get the right array index
 						if(enemy[attChoice-1]->caps.strength <= 70){
 							enemy[attChoice-1]->life_pts = enemy[attChoice-1]->life_pts - (0.5 * player->caps.strength);
@@ -518,40 +532,46 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 				break;
 
 			case 2 :
+					
 					findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
-
+					
 					//loop through foundSlots and only slots that are not adjacent to the current player slot get to be compared to gamePlayers
-					for(i=0; i < count; i++){
-						if((foundSlots[i].row != currSlot->row) && (foundSlots[i].column != currSlot->column))
-
-							if((foundSlots[i].row != currSlot->up->row) && (foundSlots[i].column != currSlot->up->column))
-
-								if((foundSlots[i].row != currSlot->down->row) && (foundSlots[i].column != currSlot->down->column))
-
-									if((foundSlots[i].row != currSlot->left->row) && (foundSlots[i].column != currSlot->left->column))
-
-										if((foundSlots[i].row != currSlot->right->row) && (foundSlots[i].column != currSlot->right->column)){
-
-											for(j=0; j < numPlayers; j++){
-												if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
-
-													enemy[numEnemies]  = &gamePlayers[j];
-													numEnemies++;
-												}
-											}
-										}
+					for (i = 0; i < numPlayers; i++) {
+						
+						if (gamePlayers[i].alive) {
+							
+							for (j = 0; j < count; j++) {
+								
+								// check if the current player is on the current slot
+								if (gamePlayers[i].row == foundSlots[j].row && gamePlayers[i].column == foundSlots[j].column) {
+									
+									// check if the current slot is not adjacent to the attackers slot (because it is a distant attack)
+									if (currSlot->right != &foundSlots[j]
+											&& currSlot->left != &foundSlots[j] 
+											&& currSlot->up != &foundSlots[j] 
+											&& currSlot->down != &foundSlots[j]) {												
+										
+										// add the attackable player to the enemy array
+										enemy[numEnemies]  = &gamePlayers[i];
+										// increment numEnemies
+										numEnemies++;
+									}
+								}
+								 
+							}
+						}
+						
 					}
-
+					//printf("\nTotal Enemies: %d", numEnemies);
 					if(numEnemies > 0){
 						printf("\nYou can attack:");
 						for(i=0; i < numEnemies; i++){
-							printf("\n%d)%s Life points:%d",i+1, enemy[i]->name, enemy[i]->life_pts);
+							printf("\n%d. %s (%d HP)",i+1, enemy[i]->name, enemy[i]->life_pts);
 						}
 
-						printf("Choice: ");
+						printf("\nChoice: ");
 						fflush(stdin); // flush the stdin buffer
 						scanf("%d", &attChoice);
-
 						if(player->caps.dexterity >= enemy[attChoice-1]->caps.dexterity){
 							/*nothing happens (attaked player remain unchanged)*/
 						}
@@ -562,44 +582,65 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 						completeAttack = 1;
 					}
 					else{
-						printf("There is no far away players.\nPlease choose a different type of attack");
+						printf("\nThere is no far away players.\nPlease choose a different type of attack!\n\n");
 						completeAttack = 0;
 					}
 				break;
 
 			case 3:
-
-					if((player->caps.smartness)+(player->caps.magicSkills) > 150){
-						printf("\nSorry you are not eligible for this attack.\nYou need the total sum of your smartness and magic skills points to be greater than 150");
-						completeAttack = 0;
-					}else{
-
-						findSlots(DISTANT_ATTACK, 0, currSlot, foundSlots, &count, explored);
-
-						for(i=0; i < count; i++){
-							for(j=0; j < numPlayers; j++){
-								if((gamePlayers[j].row == foundSlots[i].row) && (gamePlayers[j].column == foundSlots[i].column)){
-
-									enemy[numEnemies]  = &gamePlayers[j];
+					
+				if((player->caps.smartness)+(player->caps.magicSkills) > 150){
+					
+					printf("\nSorry you are not eligible for this attack.\nYou need the total sum of your smartness and magic skills points to be greater than 150");
+					completeAttack = 0;
+					
+				} else {
+				
+					// reqDist is set to boardSize as magic attacks can hit any one, regardless of distance
+					findSlots(boardSize, 0, currSlot, foundSlots, &count, explored);
+					
+					//loop through foundSlots and only slots that are not adjacent to the current player slot get to be compared to gamePlayers
+					for (i = 0; i < numPlayers; i++) {
+						
+						if (gamePlayers[i].alive) {
+							
+							for (j = 0; j < count; j++) {
+								
+								// check if the current player is on the current slot
+								if (gamePlayers[i].row == foundSlots[j].row && gamePlayers[i].column == foundSlots[j].column) {
+									
+									// add the attackable player to the enemy array
+									enemy[numEnemies]  = &gamePlayers[i];
+									// increment numEnemies
 									numEnemies++;
+									
 								}
+								 
 							}
 						}
-
-
+						
+					}
+					//printf("\nTotal Enemies: %d", numEnemies);
+					if(numEnemies > 0){
 						printf("\nYou can attack:");
 						for(i=0; i < numEnemies; i++){
-							printf("\n%d)%s Life points:%d",i+1, enemy[i]->name, enemy[i]->life_pts);
+							printf("\n%d. %s (%d HP)",i+1, enemy[i]->name, enemy[i]->life_pts);
 						}
 
-						printf("Choice: ");
+						printf("\nChoice: ");
 						fflush(stdin); // flush the stdin buffer
 						scanf("%d", &attChoice);
-
+						
 						enemy[attChoice]->life_pts -= ((0.5 * player->caps.magicSkills)+(0.2 * player->caps.smartness));
 
 						completeAttack = 1;
 					}
+					else{
+						printf("\nThere is no far away players.\nPlease choose a different type of attack!\n\n");
+						completeAttack = 0;
+					}
+					
+				}	
 				break;
 
 			default:
@@ -608,7 +649,7 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 
 		}//end of switch
 
-	}while(!completeAttack);
+	} while(!completeAttack);
 
 	free(enemy);
 	free(foundSlots);
@@ -630,7 +671,7 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
  *	Returns:
  *		int - 1 if they completed their move, 0 if they didn't
  */
-int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) {
+int move(unsigned int boardSize, struct SLOT **gameSlots, struct PLAYER *player) {
 
 
 	size_t
@@ -655,7 +696,7 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
 				break;
 			}
 
-			updateCapabilities(gameSlots, player, (player->row * (player->column + 1)));
+			updateCapabilities(gameSlots, player, player->row, player->column + 1);
 
 			player->column++;
 			printf("\n%s, you moved rightwards to location row %d, column %d.", player->name, player->row, player->column);
@@ -672,7 +713,7 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
 				break;
 			}
 
-			updateCapabilities(gameSlots, player, (player->row * (player->column - 1)));
+			updateCapabilities(gameSlots, player, player->row, player->column - 1);
 
 			player->column--;
 			printf("\n%s, you moved leftwards to location row %d, column %d.", player->name, player->row, player->column);
@@ -688,7 +729,7 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
 				break;
 			}
 
-			updateCapabilities(gameSlots, player, ((player->row - 1) * (player->column)));
+			updateCapabilities(gameSlots, player, player->row - 1, player->column);
 
 			player->row--;
 			printf("\n%s, you moved upwards to location row %d, column %d.", player->name, player->row, player->column);
@@ -704,7 +745,7 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
 				break;
 			}
 
-			updateCapabilities(gameSlots, player, ((player->row + 1) * (player->column)));
+			updateCapabilities(gameSlots, player, player->row + 1, player->column);
 
 			player->row++;
 			printf("\n%s, you moved downwards to location row %d, column %d.", player->name, player->row, player->column);
@@ -731,14 +772,14 @@ int move(unsigned int boardSize, struct SLOT *gameSlots, struct PLAYER *player) 
  *	Returns:
  *		N/A
  */
-void updateCapabilities(struct SLOT *gameSlots, struct PLAYER *player, size_t nextSlotIndex) {
+void updateCapabilities(struct SLOT **gameSlots, struct PLAYER *player, size_t nextSlotRow, size_t nextSlotCol) {
 
 	enum SLOT_TYPES
 			prevSlotType, // the SLOT_TYPES of the old slot
 			nextSlotType; // the SLOT_TYPES of the new slot
 
-	prevSlotType = gameSlots[(player->row) * (player->column)].slotType;
-	nextSlotType = gameSlots[nextSlotIndex].slotType;
+	prevSlotType = gameSlots[player->row][player->column].slotType;
+	nextSlotType = gameSlots[nextSlotRow][nextSlotCol].slotType;
 
 
 	// update the players capabilities only if they are not going to the same slot type
@@ -831,12 +872,12 @@ for (each player in player array) {
  * Description:
  * 		This function returns how many players are still alive (i.e. they didn't manually exit or die).
  *	Parameters:
- *		gameSlots : struct PLAYER pointer - Pointer to the start of the array of players.
+ *		players : struct PLAYER pointer - Pointer to the start of the array of players.
  *		numStartPlayers : uint - The number of players that started the game.
  *	Returns:
  *		numAlivePlayers : int - the number of players still alive
  */
-int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *gameSlots) {
+int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *players) {
 
 	size_t
 		i;
@@ -846,7 +887,7 @@ int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *gameSlots)
 	numAlivePlayers = 0;
 
 	for (i = 0; i < numStartPlayers; i++) {
-		if (gameSlots[i].alive == 1)
+		if (players[i].alive == 1)
 			numAlivePlayers++;
 	}
 
@@ -857,27 +898,40 @@ int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *gameSlots)
 /*
  * This function creates the board
  * Parameters:
- * 	size: the size of the board
+ * 	boardSize: the size of the board
+ *  gameSlots: pointer of pointers to the board
  * 	upLeft: pointer of pointer to slot at position (0, 0)
  * 	upRight: pointer of pointer to slot at position (0, boardSize -1)
  * 	downLeft: pointer of pointer to slot at position (boardSsize -1, 0)
  * 	upLeft: pointer of pointer to slot at position (boardSize - 1, boardSize -1)
  */
-void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, struct SLOT **downLeft, struct SLOT **downRight){
+void createBoard(int boardSize, struct SLOT **gameSlots, struct SLOT **upLeft, struct SLOT **upRight, struct SLOT **downLeft, struct SLOT **downRight){
 
-	//The board is represented as a pointer of pointer to SLOTs
-	//This allocates in memory the space for the pointers to each row of the board
-	struct SLOT ** board = malloc(boardSize * sizeof(struct SLOT *));
+	
+	struct SLOT **board = gameSlots;
+	//gameSlots = board;
+	//printf("\nGameSlots = %p | board = %p", *gameSlots, *board);
 
-
-	for(int i =0; i< boardSize; i++){
+	for(int i = 0; i < boardSize; i++){
 		//This allocates in memory the space for the slots in each row of the board
+		//printf("\nBoard[%d] = malloc(%d)", i, boardSize * sizeof(struct SLOT));
 		board[i] = malloc(boardSize * sizeof(struct SLOT));
-
+		//gameSlots[i] = board[i];
+		
+		//printf("\nGameSlots[%d
+		
 		//For each slot it sets up the row and column number
-		for(int j=0;j < boardSize; j++){
+		for(int j = 0; j < boardSize; j++){
+						
 			board[i][j].row = i;
 			board[i][j].column = j;
+			
+			board[i][j].slotType = 0;
+			
+			board[i][j].up = NULL;
+			board[i][j].down = NULL;
+			board[i][j].left = NULL;
+			board[i][j].right = NULL;
 		}
 	}
 
@@ -933,27 +987,27 @@ void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, str
 		board[i][boardSize -1].down = &board[i+1][boardSize -1];
 		board[i][boardSize -1].right = NULL;
 	}
+	
 
+	//It sets up the adjacent slots for the slot at position (0,0).
+	//This only has only 2 adjacent slots: right and down
+	board[0][0].right = &board[0][1];
+	board[0][0].down = &board[1][0];
 
-		//It sets up the adjacent slots for the slot at position (0,0).
-		//This only has only 2 adjacent slots: right and down
-		board[0][0].right = &board[0][1];
-		board[0][0].down = &board[1][0];
+	//It sets up the adjacent slots for the slot at position (0,boardSize -1).
+	//This only has only 2 adjacent slots: left and down
+	board[0][boardSize-1].left = &board[0][boardSize-2];
+	board[0][boardSize -1].down = &board[1][boardSize -1];
 
-		//It sets up the adjacent slots for the slot at position (0,boardSize -1).
-		//This only has only 2 adjacent slots: left and down
-		board[0][boardSize-1].left = &board[0][boardSize-2];
-		board[0][boardSize -1].down = &board[1][boardSize -1];
+	//It sets up the adjacent slots for the slot at position (boarSize -1 ,0).
+	//This only has only 2 adjacent slots: up and right
+	board[boardSize -1][0].right = &board[boardSize -1][1];
+	board[boardSize -1][0].up = &board[boardSize -2][0];
 
-		//It sets up the adjacent slots for the slot at position (boarSize -1 ,0).
-		//This only has only 2 adjacent slots: up and right
-		board[boardSize -1][0].right = &board[boardSize -1][1];
-		board[boardSize -1][0].up = &board[boardSize -2][0];
-
-		//It sets up the adjacent slots for the slot at position (boarSize -1 ,boardSize-1).
-		//This only has only 2 adjacent slots: up and left
-		board[boardSize - 1][boardSize-1].up = &board[boardSize-2][boardSize-1];
-		board[boardSize - 1][boardSize -1].left = &board[boardSize -1][boardSize -2];
+	//It sets up the adjacent slots for the slot at position (boarSize -1 ,boardSize-1).
+	//This only has only 2 adjacent slots: up and left
+	board[boardSize - 1][boardSize-1].up = &board[boardSize-2][boardSize-1];
+	board[boardSize - 1][boardSize -1].left = &board[boardSize -1][boardSize -2];
 
 
 
@@ -969,7 +1023,10 @@ void createBoard(int boardSize, struct SLOT **upLeft, struct SLOT **upRight, str
 	*downLeft = &board[boardSize -1][0];
 	//assigns pointer of pointer to slot at position (boardSize -1, boardSize -1)
 	*downRight = &board[boardSize -1][boardSize -1];
-	}
+		
+	// gameSlots = board;
+	
+}
 
 
 
@@ -987,10 +1044,10 @@ struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot
 	//current slot
 	struct SLOT * currentSlot = initialSlot;
 
-	printf("\nFunction reachDesiredElement invoked\n");
+	//printf("\nFunction reachDesiredElement invoked\n");
 
 	//prints the column and the row of the initial slot from which the search starts
-	printf("Initial slot (%d, %d) -> \n",initialSlot->row,initialSlot->column);
+	//printf("Initial slot (%d, %d) -> \n", initialSlot->row,initialSlot->column);
 
 
 	//while the slot is not found
@@ -1003,7 +1060,7 @@ struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot
 			//the current slot now points to the slot one row up
 			currentSlot = currentSlot->up;
 			//prints the column and the row of the current slot
-			printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
+			//printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
 		}
 		//if the row of the current slot is < of the row of the desired slot,
 		//we move down
@@ -1011,7 +1068,7 @@ struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot
 			//the current slot now points to the slot one row down
 			currentSlot = currentSlot->down;
 			//prints the row and the column of the current slot
-			printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
+			//printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
 
 		}
 		//if the column of the current slot is > of the column of the desired slot,
@@ -1021,7 +1078,7 @@ struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot
 			//the current slot now points to the slot one column left
 			currentSlot = currentSlot->left;
 			//prints the row and the column of the current slot
-			printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
+			//printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
 		}
 
 		//if the column of the current slot is < of the column of the desired slot,
@@ -1031,15 +1088,15 @@ struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot
 			//the current slot now points to the slot one column right
 			currentSlot = currentSlot->right;
 			//prints the row and the column of the current slot
-			printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
+			//printf("Current slot (%d, %d) -> \n",currentSlot->row,currentSlot->column);
 
 		}
 		//if the current slot is at a column and a row equal to the desired column and row, respectively
 		// we found the slot
 		if(currentSlot->column == column && currentSlot->row == row){
-			printf("Found\n");
+			//printf("\n* * Found\n");
 			found = true;
-
+			
 		}
 
 	}
@@ -1060,10 +1117,22 @@ struct SLOT * reachDesiredElement(int row, int column, struct SLOT * initialSlot
  */
 void findSlots(int reqDist, int currDist,  struct SLOT * currSlot, struct SLOT * foundSlots, int * count,  bool explored[7][7]){
 
-
-
+	static 
+			int test = 0;
+	
+	test++;
+	
+	if (test == 1) {
+		
+		printf("\nfindSlots [%d] (CurrDist %d, ReqDist %d)", test, currDist, reqDist);
+		printf("\nSlot->row = %d | slot->col = %d", currSlot->row, currSlot->column);
+		
+		
+	}
+		
 	//The base case: the current slot is at the required distance from the starting slot
 	if(currDist == reqDist){
+		//printf("\nCurrDist (%d) == reqDist (%d)", currDist, reqDist);
 		//the current slot was not explored
 		if(explored[currSlot->row][currSlot->column] == false){
 			//The next availbale position (indicated by count) at foundSlots points to the current slot
@@ -1076,8 +1145,12 @@ void findSlots(int reqDist, int currDist,  struct SLOT * currSlot, struct SLOT *
 	}
 	//The recursive call: the current slot is at a distance that is less than the required distance (more slots still have to be traversed)
 	else{
+		
+		//printf("\ncurrSlot (%d|%d) = %p | %p", currSlot->row, currSlot->column, &currSlot, *currSlot);
+		
 		//if the current slot has the up slot != NULL (i.e. the slot is not in the first row)
 		if(currSlot->up != NULL){
+			//printf("\nInvoking findSlots for currSlot->up for current slot (%d, %d)", currSlot->row, currSlot->column);
 			//invokes function find slots incrementing the current Distance (currDist) and setting the current slot to the up slot
 			findSlots(reqDist, currDist +1,  currSlot->up, foundSlots, count, explored);
 		}
