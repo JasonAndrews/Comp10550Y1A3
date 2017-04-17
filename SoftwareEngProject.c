@@ -145,13 +145,13 @@ int main(void) {
 	//prints out <player name> (<player Type>, <life_pts>) or "quit the game"
 	for(i = 0; i < numPlayers; i++)
 	{
-		if(gamePlayers[i].alive == 0){
-			printf("\n%s died",gamePlayers[i].name);
+		if(gamePlayers[i].alive == 0) {
+			printf("\n%s died.",gamePlayers[i].name);
 			
-		}else if(gamePlayers[i].quit == 1){
-			printf("\n%s quit the game", gamePlayers[i].name);
-		}else{
-			printf("\n%s (%s, %d)", gamePlayers[i].name, getPtypeString(gamePlayers[i].playerType), gamePlayers[i].life_pts);
+		} else if(gamePlayers[i].quit == 1){
+			printf("\n%s quit the game.", gamePlayers[i].name);
+		} else{
+			printf("\n%s (%s, %d).", gamePlayers[i].name, getPtypeString(gamePlayers[i].playerType), gamePlayers[i].life_pts);
 		}
 	}
 
