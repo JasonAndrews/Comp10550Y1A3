@@ -137,9 +137,7 @@ int main(void) {
 			nextTurn(boardSize, gameSlots, numPlayers, gamePlayers, &gamePlayers[i], currSlot);
 			//nextTurn(unsigned int numSlots, struct SLOT **gameSlots, unsigned int numPlayers, struct PLAYER *gamePlayers, struct PLAYER *player, struct SLOT *currSlot)
 		}
-
-
-
+		
 		i++;
 	}
 
@@ -147,10 +145,10 @@ int main(void) {
 	//prints out <player name> (<player Type>, <life_pts>) or "quit the game"
 	for(i = 0; i < numPlayers; i++)
 	{
-		// TO-DO
-		// check if alive == 1 and if hp > 0, then that player is the winner
-		// if alive == 0 and if hp > 0, then that player manually exited the game
-		if(gamePlayers[i].quit == 1){
+		if(gamePlayers[i].life_pts <= 0){
+			printf("\n%s died",gamePlayers[i].name);
+			
+		}else if(gamePlayers[i].quit == 1){
 			printf("\n%s quit the game", gamePlayers[i].name);
 		}else{
 			printf("\n%s (%s, %d)", gamePlayers[i].name, getPtypeString(gamePlayers[i].playerType), gamePlayers[i].life_pts);

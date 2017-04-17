@@ -543,10 +543,21 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 					// damage the appropriate player
 					// the attChoice-1 is to get the right array index
 					if(enemy[attChoice-1]->caps.strength <= 70){
+						
 						enemy[attChoice-1]->life_pts = enemy[attChoice-1]->life_pts - (0.5 * player->caps.strength);
+						
+						// check if the attacked player has any hitpoints left
+						if (enemy[attChoice-1]->life_pts <= 0)
+							enemy[attChoice-1]->alive = 0; // set them as dead
+						
 						completeAttack = complete = 1; // successful attack (turn completes)
 					} else if(enemy[attChoice-1]->caps.strength > 70){
 						player->life_pts = player->life_pts - (0.3 * enemy[attChoice-1]->caps.strength);
+						
+						// check if the attacked player has any hitpoints left
+						if (player->life_pts <= 0)
+							player->alive = 0; // set them as dead
+						
 						completeAttack = complete = 1; // successful attack (turn completes)
 					}
 					
@@ -615,6 +626,11 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 					// damage the appropriate player
 					if (player->caps.dexterity > enemy[attChoice-1]->caps.dexterity){
 						enemy[attChoice-1]->life_pts -= 0.3 * (player->caps.strength);
+						
+						// check if the attacked player has any hitpoints left
+						if (enemy[attChoice-1]->life_pts <= 0)
+							enemy[attChoice-1]->alive = 0; // set them as dead
+						
 					}
 
 					completeAttack = complete = 1;// successful attack (turn is complete)
@@ -674,7 +690,11 @@ int attack(struct PLAYER *gamePlayers, struct PLAYER *player, unsigned int numPl
 						} while (attChoice < 1 || attChoice > i);
 						
 						enemy[attChoice]->life_pts -= ((0.5 * player->caps.magicSkills)+(0.2 * player->caps.smartness));
-
+						
+						// check if the attacked player has any hitpoints left
+						if (enemy[attChoice]->life_pts <= 0)
+							enemy[attChoice]->alive = 0; // set them as dead
+						
 						completeAttack = complete = 1;// successful attack (turn completes)
 					}
 					
@@ -920,7 +940,7 @@ int getTotalAlivePlayers(unsigned int numStartPlayers, struct PLAYER *players) {
 	numAlivePlayers = 0;
 
 	for (i = 0; i < numStartPlayers; i++) {
-		if ((players[i].alive == 1) && (players[i].quit == 0))
+		if ((players[i].alive == 1) && (players[i].quit == 0) && (players[i].life_pts >= 0))
 			numAlivePlayers++;
 	}
 
