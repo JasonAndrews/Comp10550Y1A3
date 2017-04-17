@@ -159,13 +159,17 @@ int main(void) {
 	}
 
 	printf("\n\n** Game Over! **\nHere are the end-game stats for every player!");
-	//prints out <player name> (<player Type>, <life_pts>)
+	//prints out <player name> (<player Type>, <life_pts>) or "quit the game"
 	for(i = 0; i < numPlayers; i++)
 	{
 		// TO-DO
 		// check if alive == 1 and if hp > 0, then that player is the winner
 		// if alive == 0 and if hp > 0, then that player manually exited the game
-		printf("\n%s (%s, %d)", gamePlayers[i].name, getPtypeString(gamePlayers[i].playerType), gamePlayers[i].life_pts);
+		if(gamePlayers[i].quit == 1){
+			printf("\n%s quit the game", gamePlayers[i].name);
+		}else{
+			printf("\n%s (%s, %d)", gamePlayers[i].name, getPtypeString(gamePlayers[i].playerType), gamePlayers[i].life_pts);
+		}
 	}
 
 	printf("\n\n");

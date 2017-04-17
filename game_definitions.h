@@ -70,7 +70,8 @@ struct PLAYER {
 
 	int
 		life_pts, // life points
-		alive, // the player's status - 0 if dead or if they exited, 1 if active and alive
+		alive, // the player's status - 0 if dead, 1 if alive
+		quit,//the player's status - 0 if did not quit, 1 if quit
 		row, // the row that the player is on within the board
 		column; // the column that the player is on within the board
 
